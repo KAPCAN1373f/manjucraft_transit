@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MC Transit — 乗り換え案内</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+:root {
+--bg:       #1c1c1c;
+--surface:  #252525;
+--card:     #2e2e2e;
+--border:   #3a3a3a;
+--green:    #4caf50;
+--green-dim:#2e7d32;
+--green-bg: rgba(76,175,80,0.10);
+--text:     #e0e0e0;
+--sub:      #888;
+--danger:   #f28b2f;
+/* 種別カラー */
+--local:    #696969;
+--rapid:    #64B1FF;
+--express:  #FFDD63;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: var(--bg);
+color: var(--text);
+font-family: 'Noto Sans JP', sans-serif;
+min-height: 100vh;
+padding-bottom: 48px;
+}
+
+/* ── Header ── */
+header {
+background: var(--surface);
+border-bottom: 2px solid var(--green-dim);
+padding: 14px 20px;
+position: sticky;
+top: 0;
+z-index: 100;
+display: flex;
+align-items: baseline;
+gap: 12px;
+}
+.logo { font-size: 1.15rem; font-weight: 700; color: var(--green); letter-spacing: 0.04em; }
+.logo-sub { font-size: 0.72rem; color: var(--sub); letter-spacing: 0.1em; }
+
+/* ヘッダー右側のテキスト */
+.header-right {
+  margin-left: auto;
+  font-size: 0.62rem;
+  color: var(--sub);
+  align-self: center;
+  opacity: 0.8;
+}
+
+
+/* ── Layout ── */
+main { max-width: 560px; margin: 0 auto; padding: 20px 14px; }
+
+/* ── Tabs ── */
+.tabs {
+display: flex;
+border: 1px solid var(--border);
+border-radius: 6px;
+overflow: hidden;
+margin-bottom: 18px;
+}
+.tab {
+flex: 1;
+padding: 10px 0;
+background: var(--surface);
+color: var(--sub);
+font-size: 0.85rem;
+font-weight: 500;
+text-align: center;
+cursor: pointer;
+border: none;
+font-family: 'Noto Sans JP', sans-serif;
+transition: background 0.15s, color 0.15s;
+}
+.tab + .tab { border-left: 1px solid var(--border); }
+.tab.active { background: var(--green-dim); color: #fff; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── Card ── */
+.card {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 18px;
+margin-bottom: 14px;
+}
+
+/* ── Labels ── */
+.field-label {
+font-size: 0.72rem;
+font-weight: 700;
+color: var(--sub);
+letter-spacing: 0.12em;
+text-transform: uppercase;
+margin-bottom: 6px;
+}
+
+/* ── Input ── */
+.station-input-wrap { position: relative; margin-bottom: 4px; }
+.station-input {
+width: 100%;
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 5px;
+color: var(--text);
+font-family: 'Noto Sans JP', sans-serif;
+font-size: 0.97rem;
+padding: 11px 14px;
+outline: none;
+transition: border-color 0.15s;
+}
+.station-input:focus { border-color: var(--green); }
+
+/* ── Dropdown ── */
+.dropdown {
+position: absolute;
+top: calc(100% + 3px);
+left: 0; right: 0;
+background: var(--card);
+border: 1px solid var(--green);
+border-radius: 5px;
+max-height: 210px;
+overflow-y: auto;
+z-index: 300;
+display: none;
+box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+}
+.dropdown.open { display: block; }
+.dropdown-item {
+padding: 9px 14px;
+cursor: pointer;
+font-size: 0.9rem;
+display: flex;
+align-items: center;
+gap: 7px;
+border-bottom: 1px solid var(--border);
+transition: background 0.1s;
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: var(--green-bg); }
+
+/* ── Swap ── */
+.swap-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+.swap-line { flex: 1; height: 1px; background: var(--border); }
+.swap-btn {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 50%;
+width: 34px; height: 34px;
+cursor: pointer;
+color: var(--sub);
+font-size: 1rem;
+display: flex; align-items: center; justify-content: center;
+transition: border-color 0.15s, color 0.15s, transform 0.2s;
+flex-shrink: 0;
+}
+.swap-btn:hover { border-color: var(--green); color: var(--green); transform: rotate(180deg); }
+
+/* ── Search button ── */
+.search-btn {
+width: 100%;
+margin-top: 16px;
+padding: 12px;
+background: var(--green-dim);
+color: #fff;
+border: none;
+border-radius: 5px;
+font-family: 'Noto Sans JP', sans-serif;
+font-size: 0.95rem;
+font-weight: 700;
+cursor: pointer;
+letter-spacing: 0.05em;
+transition: background 0.15s;
+}
+.search-btn:hover { background: var(--green); }
+.search-btn:active { background: #1b5e20; }
+
+/* ── Result ── */
+#result { display: none; }
+#result.visible { display: block; }
+
+.result-meta {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 18px;
+padding-bottom: 12px;
+border-bottom: 1px solid var(--border);
+gap: 8px;
+}
+.result-route-label { font-size: 0.8rem; font-weight: 700; color: var(--sub); letter-spacing: 0.05em; }
+.transfer-badge {
+font-size: 0.78rem;
+font-weight: 700;
+padding: 3px 10px;
+border-radius: 20px;
+background: var(--green-bg);
+color: var(--green);
+border: 1px solid var(--green-dim);
+white-space: nowrap;
+flex-shrink: 0;
+}
+
+/* ── Journey ── */
+.journey { display: flex; flex-direction: column; }
+.step { display: flex; gap: 12px; }
+.step-timeline {
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 20px;
+flex-shrink: 0;
+}
+.step-dot {
+width: 13px; height: 13px;
+border-radius: 50%;
+border: 2.5px solid var(--sub);
+background: var(--bg);
+flex-shrink: 0;
+margin-top: 5px;
+z-index: 1;
+}
+.step-dot.start { border-color: var(--green); background: var(--green); }
+.step-dot.end   { border-color: #e0e0e0; background: #e0e0e0; }
+.step-dot.via   { border-color: #e0e0e0; background: var(--surface); }
+.step-connector { flex: 1; width: 2px; min-height: 8px; }
+.step-body { flex: 1; padding-bottom: 20px; }
+.step-station { font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
+.step-station-sub { font-size: 0.73rem; color: var(--sub); margin-bottom: 6px; }
+
+/* 乗車情報ブロック */
+.ride-block {
+background: var(--card);
+border: 1px solid var(--border);
+border-left-width: 3px;
+border-radius: 0 5px 5px 0;
+padding: 8px 12px;
+margin-top: 4px;
+display: flex;
+align-items: center;
+gap: 8px;
+flex-wrap: wrap;
+}
+.ride-name { font-size: 0.88rem; font-weight: 700; flex: 1; min-width: 60px; }
+.ride-stops { font-size: 0.75rem; color: var(--sub); white-space: nowrap; }
+
+/* ATO & Type badges */
+.badge {
+font-size: 0.65rem;
+font-weight: 700;
+padding: 2px 6px;
+border-radius: 3px;
+letter-spacing: 0.04em;
+white-space: nowrap;
+flex-shrink: 0;
+border: 1px solid transparent;
+}
+.ato-badge.on { background: rgba(76,175,80,0.18); color: #66bb6a; border-color: rgba(76,175,80,0.35); }
+.ato-badge.off { background: rgba(242,139,47,0.15); color: var(--danger); border-color: rgba(242,139,47,0.3); }
+
+.type-badge.普通 { background: rgba(158,158,158,0.2); color: #bdbdbd; border-color: #757575; }
+.type-badge.快速 { background: rgba(255,152,0,0.2); color: #ffb74d; border-color: #f57c00; }
+.type-badge.特急 { background: rgba(244,67,54,0.2); color: #ef9a9a; border-color: #d32f2f; }
+
+/* ── No route ── */
+.no-route { text-align: center; padding: 28px 0; color: var(--sub); font-size: 0.9rem; line-height: 1.8; }
+
+/* ── Lines list ── */
+.lines-list { display: flex; flex-direction: column; gap: 8px; }
+.line-item {
+display: flex;
+align-items: stretch;
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 5px;
+overflow: hidden;
+}
+.line-color-bar { width: 4px; flex-shrink: 0; }
+.line-body { flex: 1; padding: 10px 12px; min-width: 0; }
+.line-name { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.line-stations-text { font-size: 0.73rem; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.line-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; padding: 0 12px; gap: 4px; flex-shrink: 0; }
+
+.section-label {
+font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
+text-transform: uppercase; color: var(--sub);
+margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo">MC Transit</div>
+  <div class="logo-sub">乗り換え案内</div>
+<div class="header-right">Powered by KAP developer</div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('search')">経路検索</button>
+    <button class="tab" onclick="switchTab('lines')">路線一覧</button>
+  </div>
+
+  <div id="tab-search" class="tab-pane active">
+    <div class="card">
+      <div class="field-label">出発駅</div>
+      <div class="station-input-wrap">
+        <input class="station-input" id="fromInput" type="text" placeholder="駅名を入力..." autocomplete="off"
+               oninput="onInput('from')" onfocus="showDropdown('from')" />
+        <div class="dropdown" id="fromDropdown"></div>
+      </div>
+
+      <div class="swap-row">
+        <div class="swap-line"></div>
+        <button class="swap-btn" onclick="swapStations()" title="入れ替え">⇅</button>
+        <div class="swap-line"></div>
+      </div>
+
+      <div class="field-label">到着駅</div>
+      <div class="station-input-wrap">
+        <input class="station-input" id="toInput" type="text" placeholder="駅名を入力..." autocomplete="off"
+               oninput="onInput('to')" onfocus="showDropdown('to')" />
+        <div class="dropdown" id="toDropdown"></div>
+      </div>
+
+      <button class="search-btn" onclick="searchRoute()">経路を検索</button>
+    </div>
+
+    <div class="card" id="result">
+      <div id="resultContent"></div>
+    </div>
+  </div>
+
+  <div id="tab-lines" class="tab-pane">
+    <div class="card">
+      <div class="section-label">路線一覧</div>
+      <div class="lines-list" id="linesList"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* =============================================
+   DATA — 路線データをここに追加・編集してください
+   ============================================= */
+const ROUTES = [
+  {
+    id: "mr-hikamani-l",
+    name: "MR ヒカマニ線",
+    type: "普通",
+    color: "#FE0302",
+    auto: true,
+    stations: ["茅野村", "第二拠点", "卵森", "日窯弐", "赤椅子", "離婚町",]
+  },
+  {
+    id: "mr-hikamani-r",
+    name: "MR ヒカマニ線",
+    type: "快速",
+    color: "#FE0302",
+    auto: true,
+    stations: ["茅野村", "第二拠点", "日窯弐", "離婚町"]
+  },
+  {
+    id: "mr-hikamani-le",
+    name: "MR ヒカマニ線",
+    type: "特急",
+    color: "#FE0302",
+    auto: true,
+    stations: ["茅野村", "日窯弐", "離婚町"]
+  },
+  {
+    id: "mr-moosh-l",
+    name: "MR ムーシュ線",
+    type: "普通",
+    color: "#03A300",
+    auto: true,
+    stations: ["日窯弐", "南日窯弐", "洞窟園前", "きのこ島", "美海ニュータウン"]
+  },
+  {
+    id: "mr-hikaki-l",
+    name: "MR 日柿線",
+    type: "普通",
+    color: "#223FE5",
+    auto: true,
+    stations: ["卵森", "北卵森"]
+  },
+  {
+    id: "ntr-circle-l",
+    name: "NTR 環状線",
+    type: "普通",
+    color: "#FF9900",
+    auto: true,
+    stations: ["日窯弐", "日窯弐新都心/新日窯弐", "離婚町", "南日窯弐", "日窯弐"]
+  },
+  {
+    id: "rr-main-l",
+    name: "RR 本線",
+    type: "普通",
+    color: "#E5224F",
+    auto: true,
+    stations: ["終末要塞", "おなタウン", "久蔵林", "河井", "新蝶野", "蝶野町"]
+  },
+  {
+    id: "rr-ring-l",
+    name: "RR 環状線",
+    type: "普通",
+    color: "#35B24C",
+    auto: false,
+    stations: ["桜村", "トゥーリホウ", "ラビンティ", "おなビーチ前", "おなタウン", "ピストン町", "里", "ノーリンスーザン村", "精子園前", "シターイシティ", "トライ平原", "結熱島", "エルちゃん邸", "あなきん基地"]
+  },
+  {
+    id: "snr-end-l",
+    name: "SNR 終末線",
+    type: "普通",
+    color: "#7B23AA",
+    auto: false,
+    stations: ["離婚町", "北立浪", "立浪ゲートウェイ", "日窯弐新都心/新日窯弐", "北卵森", "珍湖", "珍陳村", "鮎原湖", "頭皮山", "卵島", "吉田川", "東指村", "饅頭大結界", "巨父", "凸村/ネザー第二要塞", "貧地々", "終末要塞"]
+  },
+  {
+    id: "snr-chono-l",
+    name: "SNR 蝶野線",
+    type: "普通",
+    color: "#D8D036",
+    auto: true,
+    stations: ["離婚町", "膣中海底", "蝶野町"]
+  },
+  {
+    id: "snr-rikon-l",
+    name: "SNR 離婚線",
+    type: "普通",
+    color: "#00D5FF",
+    auto: true,
+    stations: ["離婚町", "旧役所", "南立浪", "鐵町", "神谷村", "洞窟園前", "きのこ島", "美海ニュータウン"]
+  },
+  {
+    id: "21-chigura-l",
+    name: "弐壱鐵道 千蔵線",
+    type: "普通",
+    color: "#C5C5C5",
+    auto: true,
+    stations: ["蝶野町", "蝶野村", "月夜見", "渡見", "中洲", "ハオチン", "三日月島", "竹野町", "千蔵", "桜ヶ浜", "美海ニュータウン"]
+  },
+  {
+    id: "omutsu-l",
+    name: "御睦鉄道線",
+    type: "普通",
+    color: "#9BA696",
+    auto: true,
+    stations: ["立浪空港", "離婚町", "カジノ前", "御睦", "直町"]
+  },
+  {
+    id: "tatsumet-kirishima-l",
+    name: "立浪メトロ 桐島本線",
+    type: "普通",
+    color: "#3566c9",
+    auto: true,
+    stations: ["第二拠点", "北卵森", "肛門", "直町", "北立浪", "離婚町", "離婚港", "旧役所", "桐島", "膣中海底", "再婚島", "月夜見"]
+  },
+  {
+    id: "tatsumet-kirishima-r",
+    name: "立浪メトロ 桐島本線",
+    type: "快速",
+    color: "#3566c9",
+    auto: true,
+    stations: ["第二拠点", "北卵森", "北立浪", "離婚町", "膣中海底", "月夜見"]
+  },
+  {
+    id: "tatsumet-kirishima-le",
+    name: "立浪メトロ 桐島本線",
+    type: "特急",
+    color: "#3566c9",
+    auto: true,
+    stations: ["第二拠点", "離婚町", "月夜見"]
+  },
+  {
+    id: "tatsumet-minahika-l",
+    name: "立浪メトロ 南日窯弐線",
+    type: "普通",
+    color: "#165BE5",
+    auto: false,
+    stations: ["離婚港", "南立浪", "城南町", "南日窯弐"]
+  },
+  {
+    id: "kinoden-main-l",
+    name: "きのでん 本線",
+    type: "普通",
+    color: "#99560F",
+    auto: false,
+    stations: ["美海ニュータウン", "きのこ島ビル", "美海港", "ニュータウン入口", "きのこ湾", "きのこ島電気軌道ターミナル", "畑"]
+  },
+  {
+    id: "kinoden-kuko-l",
+    name: "きのでん 空港線",
+    type: "普通",
+    color: "#2FBF6D",
+    auto: false,
+    stations: ["きのこ島ビル", "美海ニュータウン", "ニュータウン空港地区", "きのこ島空港"]
+  },
+  {
+    id: "kinoden-sub-l",
+    name: "きのでん 支線",
+    type: "普通",
+    color: "#99560F",
+    auto: false,
+    stations: ["南きのこ島ターミナル", "出貝鬼頭半島"]
+  },
+  {
+    id: "kinoden-rito-l",
+    name: "きのでん 離島線",
+    type: "普通",
+    color: "#CA9777",
+    auto: true,
+    stations: ["美海ニュータウン", "きのこ島空港", "みんなの畑", "南きのこ島", "久保山"]
+  },
+  {
+    id: "kinoden-rito-r",
+    name: "きのでん 離島線",
+    type: "快速",
+    color: "#CA9777",
+    auto: true,
+    stations: ["美海ニュータウン", "きのこ島空港", "南きのこ島", "久保山"]
+  },
+  {
+    id: "kinoden-rito-le",
+    name: "きのでん 離島線",
+    type: "特急",
+    color: "#CA9777",
+    auto: true,
+    stations: ["美海ニュータウン", "南きのこ島", "久保山"]
+  },
+  {
+    id: "knk-main-l",
+    name: "knk 本線",
+    type: "普通",
+    color: "#F23C3C",
+    auto: true,
+    stations: ["久保山", "ELハーバー(印景島)", "新木", "子木", "海又木", "NIKKE島"]
+  },
+  {
+    id: "hsr-main-l",
+    name: "へメロカリス特別区鉄道 本線",
+    type: "普通",
+    color: "#FFBFD2",
+    auto: false,
+    stations: ["ヘメロカリス特別区", "ヘメロカリス旧特別区", "グロリオサ島", "ブレティラ島", "プロテア湖"]
+  },
+  {
+    id: "hsr-kueru-l",
+    name: "ヘメロカリス特別区鉄道 クエルクス自然公園線",
+    type: "普通",
+    color: "#FFBFD2",
+    auto: false,
+    stations: ["ヘメロカリス旧特別区", "アスポデロス低空庭園", "クエルクス自然公園"]
+  },
+  {
+    id: "hsr-sakura-l",
+    name: "ヘメロカリス特別区鉄道 桜村線",
+    type: "普通",
+    color: "#FFBFD2",
+    auto: false,
+    stations: ["アスポデロス低空庭園", "桜村"]
+  },
+  {
+    id: "sws-main",
+    name: "特別区営地下鉄 本線",
+    type: "普通",
+    color: "#FE4446",
+    auto: true,
+    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "ツリーハウス", "開發拠点", "ヘメロカリス", "月夜見"]
+  },
+  {
+    id: "sws-junkan",
+    name: "特別区営地下鉄 循環線",
+    type: "普通",
+    color: "#F2C235",
+    auto: true,
+    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "舵マンション", "竹野特別区(竹野RLヘメロカリス)", "NTR特別区", "折鶴倉庫", "交易所", "ヘメロカリス特別区", "開發拠点", "ツリーハウス"]
+  },
+  {
+    id: "sws-under",
+    name: "特別区営地下鉄 地底線",
+    type: "普通",
+    color: "#5C6565",
+    auto: true,
+    stations: ["ヘメロカリス", "廃坑", "帯水層", "kaji地下帝国"]
+  },
+  {
+    id: "sws-sakura",
+    name: "特別区営地下鉄 桜村線",
+    type: "普通",
+    color: "#FB00A4",
+    auto: true,
+    stations: ["蝶野トラップタワー", "森林公園", "桜村"]
+  },
+  {
+    id: "cm-yabu-l",
+    name: "ChiguraMetro 藪線",
+    type: "普通",
+    color: "#F2C233",
+    auto: true,
+    stations: ["南立浪", "海軍鎮守府", "三日月島", "市民球場・レース場", "参琉栖", "千蔵邸", "千蔵"]
+  },
+  {
+    id: "kamichika",
+    name: "神谷村循環地下鉄線",
+    type: "普通",
+    color: "#79F23C",
+    auto: false,
+    stations: ["天満宮前", "温泉池前", "神谷サーキット前", "竹野大学前", "魔窟", "天満宮前"]
+  },
+  {
+    id: "kc-youkan-l",
+    name: "Kc 洋館線",
+    type: "普通",
+    color: "#526eff",
+    auto: true,
+    stations: ["凸村/ネザー第二要塞", "大原要塞", "技研北口", "洋館前"]
+  },
+  {
+    id: "kc-youkan-r",
+    name: "Kc 洋館線",
+    type: "快速",
+    color: "#526eff",
+    auto: true,
+    stations: ["凸村", "大原要塞", "技研北口", "洋館前"]
+  },
+  {
+    id: "kc-giken-l",
+    name: "Kc 技研都市線",
+    type: "普通",
+    color: "#ff80b8",
+    auto: true,
+    stations: ["技研北口", "巌崖公園", "技研前", "桜丘", "平原西口", "モレトゥム一時基地", "死別島", "第二拠点"]
+  },
+  {
+    id: "kc-giken-r",
+    name: "Kc 技研都市線",
+    type: "快速",
+    color: "#ff80b8",
+    auto: true,
+    stations: ["技研北口", "巌崖公園", "技研前", "桜丘", "平原西口", "モレトゥム一時基地", "死別島", "第二拠点"]
+  },
+  {
+    id: "kc-giken-le",
+    name: "Kc 技研都市線",
+    type: "特急",
+    color: "#ff80b8",
+    auto: true,
+    stations: ["技研北口", "技研前", "第二拠点"]
+  },
+  {
+    id: "kc-mmra-l",
+    name: "Kc 村村線",
+    type: "普通",
+    color: "#4bd600",
+    auto: true,
+    stations: ["第二拠点", "珍陳村", "村村"]
+  },
+  {
+    id: "kc-mmra-r",
+    name: "Kc 村村線",
+    type: "快速",
+    color: "#4bd600",
+    auto: true,
+    stations: ["第二拠点", "村村"]
+  },
+  {
+    id: "kc-kawahira-l",
+    name: "Kc 川平線",
+    type: "普通",
+    color: "#302deb",
+    auto: true,
+    stations: ["平原西口", "穴生蛇町", "NIKKE島", "大原城"]
+  },
+  {
+    id: "kc-kawahira-r",
+    name: "Kc 川平線",
+    type: "快速",
+    color: "#302deb",
+    auto: true,
+    stations: ["平原西口", "穴生蛇町", "NIKKE島", "大原城"]
+  },
+  {
+    id: "kamiya-l",
+    name: "神谷鉄道線",
+    type: "普通",
+    color: "#79F23C",
+    auto: true,
+    stations: ["南日窯弐", "波田野", "神谷村", "下神谷村"]
+  },
+  {
+    id: "takenorl-l",
+    name: "竹野レールライン",
+    type: "普通",
+    color: "#79F23C",
+    auto: false,
+    stations: ["下神谷村", "竹野村", "三日月島", "アチャラカ", "竹野特別区(竹野RLヘメロカリス)"]
+  },
+  {
+    id: "nr-p-l",
+    name: "NR プリズマライン",
+    type: "普通",
+    color: "#59AAA0",
+    auto: false,
+    stations: ["ガーディアントラップ", "膣中海底", "新膣中海底", "襲撃トラップ"]
+  },
+  {
+    id: "fshr-main-l",
+    name: "FShR 本線",
+    type: "普通",
+    color: "#8CC6FF",
+    auto: false,
+    stations: ["しゃこてぃす一時基地", "くれむしゅにて一時基地", "えんぱなーだ一時基地", "はちゃぷり坑道前哨基地", "イタリアンチキン強烈頂点基地"]
+  },
+  {
+    id: "new-hikamani",
+    name: "新幹線 日窯弐ボートライン",
+    type: "特急",
+    color: "#B2B2B2",
+    auto: false,
+    stations: ["日窯弐", "第二拠点"]
+  },
+  {
+    id: "new-twinrikon",
+    name: "新幹線 スピード離婚ツインライン",
+    type: "特急",
+    color: "#B2B2B2",
+    auto: false,
+    stations: ["日窯弐", "離婚町"]
+  },
+  {
+    id: "new-anal",
+    name: "亜成開帳新幹線",
+    type: "特急",
+    color: "#B2B2B2",
+    auto: false,
+    stations: ["離婚町", "新膣中海底", "蝶野町"]
+  },
+  {
+    id: "new-anauda",
+    name: "穴生蛇新幹線",
+    type: "特急",
+    color: "#B2B2B2",
+    auto: false,
+    stations: ["きのこ島", "新きのこ島", "穴生蛇町"]
+  },
+  {
+    id: "nr-n-l",
+    name: "NR ネザー本線(ネザー)",
+    type: "普通",
+    color: "#9B00FF",
+    auto: true,
+    stations: ["おなタウン", "離婚町", "日窯弐", "第二拠点", "童貞森", "処女森", "稚女森", "凸村/ネザー第二要塞", "終末要塞", "おなタウン"]
+  },
+  {
+    id: "nr-t-l",
+    name: "NR 月夜見線(ネザー)",
+    type: "普通",
+    color: "#FDD966",
+    auto: true,
+    stations: ["製砂工場", "千蔵邸", "溶岩瀑布", "カフェキン邸", "ピグリン第一要塞", "ヘメロカリス", "月夜見", "蝶野町", "離婚町", "日窯弐"]
+  },
+  {
+    id: "nr-t-r",
+    name: "NR 月夜見線(ネザー)",
+    type: "快速",
+    color: "#FDD966",
+    auto: true,
+    stations: ["製砂工場", "千蔵邸", "ピグリン第一要塞", "ヘメロカリス", "月夜見", "蝶野町", "離婚町", "日窯弐"]
+  },
+  {
+    id: "nr-t-le",
+    name: "NR 月夜見線(ネザー)",
+    type: "特急",
+    color: "#FDD966",
+    auto: true,
+    stations: ["製砂工場", "ヘメロカリス", "月夜見", "蝶野町", "離婚町", "日窯弐"]
+  },
+  {
+    id: "nr-o-l",
+    name: "NR 大原線(ネザー)",
+    type: "普通",
+    color: "#13FE00",
+    auto: true,
+    stations: ["晶洞", "大原邸", "大原城塞", "第二拠点", "大原別荘", "処女森", "稚女森", "露里森", "大原要塞"]
+  },
+  {
+    id: "nr-o-r",
+    name: "NR 大原線(ネザー)",
+    type: "快速",
+    color: "#13FE00",
+    auto: true,
+    stations: ["晶洞", "大原邸", "処女森", "稚女森", "大原要塞"]
+  },
+  {
+    id: "nr-o-le",
+    name: "NR 大原線(ネザー)",
+    type: "特急",
+    color: "#13FE00",
+    auto: true,
+    stations: ["晶洞", "大原邸", "処女森", "稚女森"]
+  },
+  {
+    id: "nr-s-l",
+    name: "NR 処女森線(ネザー)",
+    type: "普通",
+    color: "#FF0002",
+    auto: true,
+    stations: ["技研前", "処女森", "稚女森", "景傑島"]
+  },
+  {
+    id: "nr-r-l",
+    name: "NR 離婚線(ネザー)",
+    type: "普通",
+    color: "#0197A7",
+    auto: true,
+    stations: ["離婚町", "南立浪", "桐島", "製砂工場", "チャンバー"]
+  },
+  {
+    id: "nr-y-l",
+    name: "NR 要塞線(ネザー)",
+    type: "普通",
+    color: "#610200",
+    auto: true,
+    stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "新日窯弐(ネザー)", "日窯弐", "珍下森", "古代都市", "御根森", "魂谷", "ウィザスケトラップ"]
+  },
+  {
+    id: "new-miu",
+    name: "美海新幹線(ネザー)",
+    type: "特急",
+    color: "#B2B2B2",
+    auto: false,
+    stations: ["南立浪", "新日窯弐(ネザー)", "美海ニュータウン", "南きのこ島"]
+  },
+  {
+    id: "new-wankyo",
+    name: "歪曲新幹線(ネザー)",
+    type: "特急",
+    color: "#B2B2B2",
+    auto: false,
+    stations: ["日窯弐", "溶岩溜まり"]
+  },
+  {
+    id: "pl-c-l",
+    name: "PL 真紅線(ネザー)",
+    type: "普通",
+    color: "#FA040F",
+    auto: true,
+    stations: ["ホグリン養豚場", "荒廃ポータル", "ピグリン第一要塞", "kaji地下帝国"]
+  },
+  {
+    id: "pl-b-l",
+    name: "PL 花束線(ネザー)",
+    type: "普通",
+    color: "#FE02AA",
+    auto: true,
+    stations: ["ホグリン養豚場", "ヘメロカリス", "桜村", "低空庭園", "ヘメロカリス旧特別区", "プロテア湖", "ブレティラ島", "魚トラップ"]
+  },
+  {
+    id: "wr-l-l",
+    name: "WR 下層線(ネザー)",
+    type: "普通",
+    color: "#FF9900",
+    auto: true,
+    stations: ["繞堂", "狭間", "南立浪"]
+  },
+  {
+    id: "wr-u-l",
+    name: "WR 上層線(ネザー)",
+    type: "普通",
+    color: "#0097A7",
+    auto: true,
+    stations: ["南立浪", "赤椅子", "薔薇森", "神谷村", "晶洞", "大原集落", "結穴森", "モレトゥム一時基地", "高寵森", "大原拠点"]
+  },
+  {
+    id: "wr-usub-l",
+    name: "WR 上層支線(ネザー)",
+    type: "普通",
+    color: "#0097A7",
+    auto: true,
+    stations: ["晶洞", "大原邸"]
+  },
+  {
+    id: "nshr-main-l",
+    name: "NShR 本線(ネザー)",
+    type: "普通",
+    color: "#8CC6FF",
+    auto: true,
+    stations: ["終末要塞", "ラビンティ", "ヘメロカリス", "kaji地下帝国", "椦暗浮綿", "真嘘邸", "千蔵邸", "製砂工場", "ゾンピグトラップ", "美海ニュータウン", "NIKKE島", "モレトゥム一時基地", "シャトくんエリア"]
+  },
+  {
+    id: "nshr-main-r",
+    name: "NShR 本線(ネザー)",
+    type: "快速",
+    color: "#8CC6FF",
+    auto: true,
+    stations: ["終末要塞", "ラビンティ", "ヘメロカリス", "千蔵邸", "製砂工場", "美海ニュータウン", "NIKKE島", "モレトゥム一時基地"]
+  },
+  {
+    id: "nshr-moreexp-l",
+    name: "NShR モレトゥム急行線(ネザー)",
+    type: "普通",
+    color: "#8CC6FF",
+    auto: true,
+    stations: ["ヘメロカリス", "オストカーカ一時基地", "モレトゥム一時基地"]
+  },
+  {
+    id: "nshr-shako-l",
+    name: "NShR しゃこてぃす線(ネザー)",
+    type: "普通",
+    color: "#8CC6FF",
+    auto: true,
+    stations: ["ラビンティ", "(駅名不明1)", "しゃこてぃす一時基地"]
+  },
+  {
+    id: "nshr-howsub-l",
+    name: "NShR ホワイトリリー支線(ネザー)",
+    type: "普通",
+    color: "#8CC6FF",
+    auto: true,
+    stations: ["椦暗浮綿", "ホワイトリリー"]
+  },
+  {
+    id: "knc-buchi-l",
+    name: "Knc 駮岡連絡線(ネザー)",
+    type: "普通",
+    color: "#1C89EF",
+    auto: true,
+    stations: ["日窯弐", "駮岡市"]
+  },
+  {
+    id: "knc-buchi-r",
+    name: "Knc 駮岡連絡線(ネザー)",
+    type: "快速",
+    color: "#1C89EF",
+    auto: true,
+    stations: ["日窯弐", "駮岡市"]
+  },
+  {
+    id: "oer-main-l",
+    name: "OER 本線(ネザー)",
+    type: "普通",
+    color: "#ADBDCC",
+    auto: false,
+    stations: ["NIKKE島", "大原城", "大原第一デルタ", "坑道ゲートウェイ", "大原第二デルタ", "大原第三デルタ", "大原第一渓谷", "遺跡分かれ", "大原第二渓谷"]
+  },
+  {
+    id: "oer-sub-l",
+    name: "OER 坑道支線(ネザー)",
+    type: "普通",
+    color: "#ADBDCC",
+    auto: false,
+    stations: ["坑道ゲートウェイ", "坑道"]
+  },
+  {
+    id: "exsample",
+    name: "exsample",
+    type: "普通",
+    color: "#exsample",
+    auto: true,
+    stations: ["", ""]
+  },
+  {
+    id: "exsample",
+    name: "exsample",
+    type: "普通",
+    color: "#exsample",
+    auto: true,
+    stations: ["", ""]
+  },
+  {
+    id: "exsample",
+    name: "exsample",
+    type: "普通",
+    color: "#exsample",
+    auto: true,
+    stations: ["", ""]
+  },
+  {
+    id: "walk1",
+    name: "徒歩",
+    type: "普通",
+    color: "#ffffff",
+    auto: false,
+    stations: ["立浪空港", "北立浪"]
+  },
+  {
+    id: "walk2",
+    name: "徒歩",
+    type: "普通",
+    color: "#ffffff",
+    auto: false,
+    stations: ["南きのこ島ターミナル", "南きのこ島"]
+  },
+  {
+    id: "walk3",
+    name: "徒歩",
+    type: "普通",
+    color: "#ffffff",
+    auto: false,
+    stations: ["竹野村", "竹野町"]
+  },
+  {
+    id: "walk4",
+    name: "徒歩",
+    type: "普通",
+    color: "#ffffff",
+    auto: false,
+    stations: ["神谷サーキット", "下神谷村"]
+  },
+];
+
+const ALL_STATIONS = [...new Set(ROUTES.flatMap(r => r.stations))].sort();
+
+function buildGraph() {
+  const graph = {};
+  ALL_STATIONS.forEach(s => graph[s] = []);
+  ROUTES.forEach(route => {
+    for (let i = 0; i < route.stations.length - 1; i++) {
+      const a = route.stations[i], b = route.stations[i + 1];
+      graph[a].push({ to: b, route });
+      graph[b].push({ to: a, route });
+    }
+  });
+  return graph;
+}
+const GRAPH = buildGraph();
+
+function findRoute(from, to) {
+  if (from === to) return null;
+  const queue = [{ station: from, currentRoute: null, transfers: 0, path: [] }];
+  const visited = new Map();
+  while (queue.length) {
+    queue.sort((a, b) => a.transfers - b.transfers);
+    const cur = queue.shift();
+    const key = cur.station + '|' + (cur.currentRoute?.id ?? '');
+    if (visited.has(key) && visited.get(key) <= cur.transfers) continue;
+    visited.set(key, cur.transfers);
+    if (cur.station === to) return cur.path;
+    for (const edge of GRAPH[cur.station]) {
+      const isTransfer = cur.currentRoute && cur.currentRoute.id !== edge.route.id;
+      queue.push({
+        station: edge.to,
+        currentRoute: edge.route,
+        transfers: cur.transfers + (isTransfer ? 1 : 0),
+        path: [...cur.path, { from: cur.station, to: edge.to, route: edge.route }]
+      });
+    }
+  }
+  return null;
+}
+
+function pathToSegments(path) {
+  if (!path || !path.length) return [];
+  const segs = [];
+  let seg = { route: path[0].route, stations: [path[0].from, path[0].to] };
+  for (let i = 1; i < path.length; i++) {
+    if (path[i].route.id === seg.route.id) {
+      seg.stations.push(path[i].to);
+    } else {
+      segs.push(seg);
+      seg = { route: path[i].route, stations: [path[i].from, path[i].to] };
+    }
+  }
+  segs.push(seg);
+  return segs;
+}
+
+let fromStation = '', toStation = '';
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) =>
+    t.classList.toggle('active', ['search','lines'][i] === name));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function onInput(which) { showDropdown(which); }
+
+function showDropdown(which) {
+  closeAllDropdowns();
+  const input    = document.getElementById(which + 'Input');
+  const dropdown = document.getElementById(which + 'Dropdown');
+  const q = input.value.trim();
+  const filtered = q ? ALL_STATIONS.filter(s => s.includes(q)) : ALL_STATIONS;
+  dropdown.innerHTML = filtered.map(s => {
+    const dots = ROUTES.filter(r => r.stations.includes(s)).slice(0, 4)
+      .map(r => `<span style="width:8px;height:8px;border-radius:50%;background:${r.color};display:inline-block;flex-shrink:0"></span>`)
+      .join('');
+    return `<div class="dropdown-item" onclick="selectStation('${which}','${s}')">${dots}<span>${s}</span></div>`;
+  }).join('');
+  if (filtered.length) dropdown.classList.add('open');
+}
+
+function selectStation(which, name) {
+  if (which === 'from') { fromStation = name; document.getElementById('fromInput').value = name; }
+  else                  { toStation   = name; document.getElementById('toInput').value   = name; }
+  closeAllDropdowns();
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.station-input-wrap')) closeAllDropdowns();
+});
+
+function swapStations() {
+  [fromStation, toStation] = [toStation, fromStation];
+  document.getElementById('fromInput').value = fromStation;
+  document.getElementById('toInput').value   = toStation;
+}
+
+function atoBadge(auto) {
+  return auto
+    ? `<span class="badge ato-badge on">ATO対応</span>`
+    : `<span class="badge ato-badge off">ATO未対応</span>`;
+}
+
+function typeBadge(type) {
+  return `<span class="badge type-badge ${type}">${type}</span>`;
+}
+
+function searchRoute() {
+  fromStation = document.getElementById('fromInput').value.trim();
+  toStation   = document.getElementById('toInput').value.trim();
+  const resultDiv = document.getElementById('result');
+  const content   = document.getElementById('resultContent');
+  resultDiv.classList.add('visible');
+
+  if (!fromStation || !toStation) {
+    content.innerHTML = `<div class="no-route">⚠️ 出発駅と到着駅を入力してください</div>`; return;
+  }
+  if (!ALL_STATIONS.includes(fromStation)) {
+    content.innerHTML = `<div class="no-route">⚠️「${fromStation}」は登録されていません</div>`; return;
+  }
+  if (!ALL_STATIONS.includes(toStation)) {
+    content.innerHTML = `<div class="no-route">⚠️「${toStation}」は登録されていません</div>`; return;
+  }
+  if (fromStation === toStation) {
+    content.innerHTML = `<div class="no-route">出発駅と到着駅が同じです</div>`; return;
+  }
+
+  const path = findRoute(fromStation, toStation);
+  if (!path) {
+    content.innerHTML = `<div class="no-route">経路が見つかりませんでした</div>`; return;
+  }
+
+  const segs = pathToSegments(path);
+  const transfers = segs.length - 1;
+
+  let html = `
+    <div class="result-meta">
+      <div class="result-route-label">${fromStation} → ${toStation}</div>
+      <div class="transfer-badge">乗り換え ${transfers} 回</div>
+    </div>
+    <div class="journey">
+  `;
+
+  segs.forEach((seg, idx) => {
+    const isFirst = idx === 0;
+    const isLast  = idx === segs.length - 1;
+    const stops   = seg.stations.length - 1;
+    const nextSeg = segs[idx + 1];
+
+    if (isFirst) {
+      html += `
+        <div class="step">
+          <div class="step-timeline">
+            <div class="step-dot start"></div>
+            <div class="step-connector" style="background:${seg.route.color}55"></div>
+          </div>
+          <div class="step-body">
+            <div class="step-station">${seg.stations[0]}</div>
+            <div class="step-station-sub">出発</div>
+            <div class="ride-block" style="border-left-color:${seg.route.color}">
+              <div class="ride-name" style="color:${seg.route.color}">${seg.route.name}</div>
+              ${typeBadge(seg.route.type)}
+              <div class="ride-stops">${stops}駅</div>
+              ${atoBadge(seg.route.auto)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    const arriveStation = seg.stations[seg.stations.length - 1];
+    const dotClass = isLast ? 'end' : 'via';
+
+    html += `
+      <div class="step">
+        <div class="step-timeline">
+          <div class="step-dot ${dotClass}"></div>
+          ${!isLast ? `<div class="step-connector" style="background:${nextSeg.route.color}55"></div>` : ''}
+        </div>
+        <div class="step-body">
+          <div class="step-station">${arriveStation}</div>
+          <div class="step-station-sub">${isLast ? '到着' : '乗り換え'}</div>
+          ${!isLast ? `
+            <div class="ride-block" style="border-left-color:${nextSeg.route.color}">
+              <div class="ride-name" style="color:${nextSeg.route.color}">${nextSeg.route.name}</div>
+              ${typeBadge(nextSeg.route.type)}
+              <div class="ride-stops">${nextSeg.stations.length - 1}駅</div>
+              ${atoBadge(nextSeg.route.auto)}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  content.innerHTML = html;
+  resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderLines() {
+  document.getElementById('linesList').innerHTML = ROUTES.map(r => `
+    <div class="line-item">
+      <div class="line-color-bar" style="background:${r.color}"></div>
+      <div class="line-body">
+        <div class="line-name" style="color:${r.color}">${r.name} ${typeBadge(r.type)}</div>
+        <div class="line-stations-text">${r.stations.join(' › ')}</div>
+      </div>
+      <div class="line-right">
+        ${atoBadge(r.auto)}
+      </div>
+    </div>
+  `).join('');
+}
+renderLines();
+</script>
+
+</body>
+</html>
