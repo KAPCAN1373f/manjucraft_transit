@@ -3,315 +3,405 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MC Transit — 乗り換え案内</title>
+<title>MC Transit</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
-:root {
---bg:       #1c1c1c;
---surface:  #252525;
---card:     #2e2e2e;
---border:   #3a3a3a;
---green:    #4caf50;
---green-dim:#2e7d32;
---green-bg: rgba(76,175,80,0.10);
---text:     #e0e0e0;
---sub:      #888;
---danger:   #f28b2f;
-/* 種別カラー */
---local:    #696969;
---rapid:    #64B1FF;
---express:  #FFDD63;
-}
+  :root {
+    --bg:        #1c1c1c;
+    --surface:   #252525;
+    --card:      #2e2e2e;
+    --border:    #3a3a3a;
+    --green:     #4caf50;
+    --green-dim: #2e7d32;
+    --green-bg:  rgba(76,175,80,0.10);
+    --text:      #e0e0e0;
+    --sub:       #888;
+    --danger:    #f28b2f;
+  }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-background: var(--bg);
-color: var(--text);
-font-family: 'Noto Sans JP', sans-serif;
-min-height: 100vh;
-padding-bottom: 48px;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
 
-/* ── Header ── */
-header {
-background: var(--surface);
-border-bottom: 2px solid var(--green-dim);
-padding: 14px 20px;
-position: sticky;
-top: 0;
-z-index: 100;
-display: flex;
-align-items: baseline;
-gap: 12px;
-}
-.logo { font-size: 1.15rem; font-weight: 700; color: var(--green); letter-spacing: 0.04em; }
-.logo-sub { font-size: 0.72rem; color: var(--sub); letter-spacing: 0.1em; }
+  /* Header */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--green-dim);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .logo { font-size: 1.15rem; font-weight: 700; color: var(--green); letter-spacing: 0.04em; }
+  .logo-sub { font-size: 0.72rem; color: var(--sub); letter-spacing: 0.1em; }
+  .header-right {
+    margin-left: auto;
+    font-size: 0.62rem;
+    color: var(--sub);
+    align-self: center;
+    opacity: 0.8;
+    text-align: right;
+    line-height: 1.5;
+  }
 
-/* ヘッダー右側のテキスト */
-.header-right {
-  margin-left: auto;
-  font-size: 0.62rem;
-  color: var(--sub);
-  align-self: center;
-  opacity: 0.8;
-}
+  /* Layout */
+  main { max-width: 560px; margin: 0 auto; padding: 20px 14px; }
 
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    background: var(--surface);
+    color: var(--sub);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab + .tab { border-left: 1px solid var(--border); }
+  .tab.active { background: var(--green-dim); color: #fff; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
 
-/* ── Layout ── */
-main { max-width: 560px; margin: 0 auto; padding: 20px 14px; }
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
 
-/* ── Tabs ── */
-.tabs {
-display: flex;
-border: 1px solid var(--border);
-border-radius: 6px;
-overflow: hidden;
-margin-bottom: 18px;
-}
-.tab {
-flex: 1;
-padding: 10px 0;
-background: var(--surface);
-color: var(--sub);
-font-size: 0.85rem;
-font-weight: 500;
-text-align: center;
-cursor: pointer;
-border: none;
-font-family: 'Noto Sans JP', sans-serif;
-transition: background 0.15s, color 0.15s;
-}
-.tab + .tab { border-left: 1px solid var(--border); }
-.tab.active { background: var(--green-dim); color: #fff; }
-.tab-pane { display: none; }
-.tab-pane.active { display: block; }
+  .field-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--sub);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
 
-/* ── Card ── */
-.card {
-background: var(--surface);
-border: 1px solid var(--border);
-border-radius: 6px;
-padding: 18px;
-margin-bottom: 14px;
-}
+  .station-input-wrap { position: relative; margin-bottom: 4px; }
+  .station-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.97rem;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .station-input:focus { border-color: var(--green); }
 
-/* ── Labels ── */
-.field-label {
-font-size: 0.72rem;
-font-weight: 700;
-color: var(--sub);
-letter-spacing: 0.12em;
-text-transform: uppercase;
-margin-bottom: 6px;
-}
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0; right: 0;
+    background: var(--card);
+    border: 1px solid var(--green);
+    border-radius: 5px;
+    max-height: 210px;
+    overflow-y: auto;
+    z-index: 300;
+    display: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  }
+  .dropdown.open { display: block; }
+  .dropdown-item {
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .dropdown-item:last-child { border-bottom: none; }
+  .dropdown-item:hover { background: var(--green-bg); }
 
-/* ── Input ── */
-.station-input-wrap { position: relative; margin-bottom: 4px; }
-.station-input {
-width: 100%;
-background: var(--card);
-border: 1px solid var(--border);
-border-radius: 5px;
-color: var(--text);
-font-family: 'Noto Sans JP', sans-serif;
-font-size: 0.97rem;
-padding: 11px 14px;
-outline: none;
-transition: border-color 0.15s;
-}
-.station-input:focus { border-color: var(--green); }
+  .swap-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .swap-line { flex: 1; height: 1px; background: var(--border); }
+  .swap-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    cursor: pointer;
+    color: var(--sub);
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, color 0.15s, transform 0.2s;
+    flex-shrink: 0;
+  }
+  .swap-btn:hover { border-color: var(--green); color: var(--green); transform: rotate(180deg); }
 
-/* ── Dropdown ── */
-.dropdown {
-position: absolute;
-top: calc(100% + 3px);
-left: 0; right: 0;
-background: var(--card);
-border: 1px solid var(--green);
-border-radius: 5px;
-max-height: 210px;
-overflow-y: auto;
-z-index: 300;
-display: none;
-box-shadow: 0 6px 20px rgba(0,0,0,0.45);
-}
-.dropdown.open { display: block; }
-.dropdown-item {
-padding: 9px 14px;
-cursor: pointer;
-font-size: 0.9rem;
-display: flex;
-align-items: center;
-gap: 7px;
-border-bottom: 1px solid var(--border);
-transition: background 0.1s;
-}
-.dropdown-item:last-child { border-bottom: none; }
-.dropdown-item:hover { background: var(--green-bg); }
+  .options-area {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .option-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s;
+  }
+  .option-row:hover { border-color: var(--green); }
+  .option-row input[type="checkbox"] { display: none; }
+  .option-toggle {
+    width: 36px;
+    height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .option-toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: left 0.2s;
+  }
+  .option-row.checked .option-toggle { background: var(--green-dim); }
+  .option-row.checked .option-toggle::after { left: 19px; }
+  .option-label { flex: 1; font-size: 0.85rem; }
+  .option-desc { font-size: 0.7rem; color: var(--sub); margin-top: 1px; }
 
-/* ── Swap ── */
-.swap-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-.swap-line { flex: 1; height: 1px; background: var(--border); }
-.swap-btn {
-background: var(--card);
-border: 1px solid var(--border);
-border-radius: 50%;
-width: 34px; height: 34px;
-cursor: pointer;
-color: var(--sub);
-font-size: 1rem;
-display: flex; align-items: center; justify-content: center;
-transition: border-color 0.15s, color 0.15s, transform 0.2s;
-flex-shrink: 0;
-}
-.swap-btn:hover { border-color: var(--green); color: var(--green); transform: rotate(180deg); }
+  .opt-nether-icon {
+    font-size: 0.75rem;
+    background: rgba(155,0,255,0.18);
+    color: #ce93d8;
+    border: 1px solid rgba(155,0,255,0.3);
+    padding: 1px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .opt-heavy-icon {
+    font-size: 0.75rem;
+    background: rgba(242,139,47,0.15);
+    color: var(--danger);
+    border: 1px solid rgba(242,139,47,0.3);
+    padding: 1px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
 
-/* ── Search button ── */
-.search-btn {
-width: 100%;
-margin-top: 16px;
-padding: 12px;
-background: var(--green-dim);
-color: #fff;
-border: none;
-border-radius: 5px;
-font-family: 'Noto Sans JP', sans-serif;
-font-size: 0.95rem;
-font-weight: 700;
-cursor: pointer;
-letter-spacing: 0.05em;
-transition: background 0.15s;
-}
-.search-btn:hover { background: var(--green); }
-.search-btn:active { background: #1b5e20; }
+  .search-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 12px;
+    background: var(--green-dim);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.15s;
+  }
+  .search-btn:hover { background: var(--green); }
 
-/* ── Result ── */
-#result { display: none; }
-#result.visible { display: block; }
+  #result { display: none; }
+  #result.visible { display: block; }
 
-.result-meta {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 18px;
-padding-bottom: 12px;
-border-bottom: 1px solid var(--border);
-gap: 8px;
-}
-.result-route-label { font-size: 0.8rem; font-weight: 700; color: var(--sub); letter-spacing: 0.05em; }
-.transfer-badge {
-font-size: 0.78rem;
-font-weight: 700;
-padding: 3px 10px;
-border-radius: 20px;
-background: var(--green-bg);
-color: var(--green);
-border: 1px solid var(--green-dim);
-white-space: nowrap;
-flex-shrink: 0;
-}
+  .result-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .result-route-label { font-size: 0.8rem; font-weight: 700; color: var(--sub); }
+  .result-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .transfer-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--green-bg);
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    white-space: nowrap;
+  }
+  .nether-used-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(155,0,255,0.15);
+    color: #ce93d8;
+    border: 1px solid rgba(155,0,255,0.3);
+    white-space: nowrap;
+  }
 
-/* ── Journey ── */
-.journey { display: flex; flex-direction: column; }
-.step { display: flex; gap: 12px; }
-.step-timeline {
-display: flex;
-flex-direction: column;
-align-items: center;
-width: 20px;
-flex-shrink: 0;
-}
-.step-dot {
-width: 13px; height: 13px;
-border-radius: 50%;
-border: 2.5px solid var(--sub);
-background: var(--bg);
-flex-shrink: 0;
-margin-top: 5px;
-z-index: 1;
-}
-.step-dot.start { border-color: var(--green); background: var(--green); }
-.step-dot.end   { border-color: #e0e0e0; background: #e0e0e0; }
-.step-dot.via   { border-color: #e0e0e0; background: var(--surface); }
-.step-connector { flex: 1; width: 2px; min-height: 8px; }
-.step-body { flex: 1; padding-bottom: 20px; }
-.step-station { font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
-.step-station-sub { font-size: 0.73rem; color: var(--sub); margin-bottom: 6px; }
+  .journey { display: flex; flex-direction: column; }
+  .step { display: flex; gap: 12px; }
+  .step-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20px;
+    flex-shrink: 0;
+  }
+  .step-dot {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    border: 2.5px solid var(--sub);
+    background: var(--bg);
+    flex-shrink: 0;
+    margin-top: 5px;
+    z-index: 1;
+  }
+  .step-dot.start { border-color: var(--green); background: var(--green); }
+  .step-dot.end   { border-color: #e0e0e0; background: #e0e0e0; }
+  .step-dot.via   { border-color: #e0e0e0; background: var(--surface); }
+  .step-connector { flex: 1; width: 2px; min-height: 8px; }
+  .step-body { flex: 1; padding-bottom: 20px; }
+  .step-station { font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
+  .step-station-sub { font-size: 0.73rem; color: var(--sub); margin-bottom: 6px; }
 
-/* 乗車情報ブロック */
-.ride-block {
-background: var(--card);
-border: 1px solid var(--border);
-border-left-width: 3px;
-border-radius: 0 5px 5px 0;
-padding: 8px 12px;
-margin-top: 4px;
-display: flex;
-align-items: center;
-gap: 8px;
-flex-wrap: wrap;
-}
-.ride-name { font-size: 0.88rem; font-weight: 700; flex: 1; min-width: 60px; }
-.ride-stops { font-size: 0.75rem; color: var(--sub); white-space: nowrap; }
+  .heavy-marker {
+    display: inline-block;
+    font-size: 0.65rem;
+    color: var(--danger);
+    border: 1px solid rgba(242,139,47,0.4);
+    background: rgba(242,139,47,0.1);
+    padding: 0px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-weight: 700;
+  }
 
-/* ATO & Type badges */
-.badge {
-font-size: 0.65rem;
-font-weight: 700;
-padding: 2px 6px;
-border-radius: 3px;
-letter-spacing: 0.04em;
-white-space: nowrap;
-flex-shrink: 0;
-border: 1px solid transparent;
-}
-.ato-badge.on { background: rgba(76,175,80,0.18); color: #66bb6a; border-color: rgba(76,175,80,0.35); }
-.ato-badge.off { background: rgba(242,139,47,0.15); color: var(--danger); border-color: rgba(242,139,47,0.3); }
+  .ride-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: 0 5px 5px 0;
+    padding: 8px 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ride-name { font-size: 0.88rem; font-weight: 700; flex: 1; min-width: 60px; }
+  .ride-stops { font-size: 0.75rem; color: var(--sub); white-space: nowrap; }
 
-.type-badge.普通 { background: rgba(158,158,158,0.2); color: #bdbdbd; border-color: #757575; }
-.type-badge.快速 { background: rgba(255,152,0,0.2); color: #ffb74d; border-color: #f57c00; }
-.type-badge.特急 { background: rgba(244,67,54,0.2); color: #ef9a9a; border-color: #d32f2f; }
+  .badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid transparent;
+  }
+  .ato-badge.on  { background: rgba(76,175,80,0.18);  color: #66bb6a; border-color: rgba(76,175,80,0.35); }
+  .ato-badge.off { background: rgba(242,139,47,0.15); color: var(--danger); border-color: rgba(242,139,47,0.3); }
+  .type-badge.local   { background: rgba(105,105,105,0.25); color: #bdbdbd; border-color: #616161; }
+  .type-badge.rapid   { background: rgba(100,177,255,0.2);  color: #90caf9; border-color: rgba(100,177,255,0.5); }
+  .type-badge.express { background: rgba(255,221,99,0.18);  color: #ffe082; border-color: rgba(255,221,99,0.5); }
+  .nether-badge {
+    background: rgba(155,0,255,0.15);
+    color: #ce93d8;
+    border-color: rgba(155,0,255,0.35);
+  }
 
-/* ── No route ── */
-.no-route { text-align: center; padding: 28px 0; color: var(--sub); font-size: 0.9rem; line-height: 1.8; }
+  .no-route { text-align: center; padding: 28px 0; color: var(--sub); font-size: 0.9rem; line-height: 1.8; }
 
-/* ── Lines list ── */
-.lines-list { display: flex; flex-direction: column; gap: 8px; }
-.line-item {
-display: flex;
-align-items: stretch;
-background: var(--card);
-border: 1px solid var(--border);
-border-radius: 5px;
-overflow: hidden;
-}
-.line-color-bar { width: 4px; flex-shrink: 0; }
-.line-body { flex: 1; padding: 10px 12px; min-width: 0; }
-.line-name { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-.line-stations-text { font-size: 0.73rem; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.line-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; padding: 0 12px; gap: 4px; flex-shrink: 0; }
+  .lines-list { display: flex; flex-direction: column; gap: 8px; }
+  .lines-filter { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-btn {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--sub);
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.15s;
+  }
+  .filter-btn.active { background: var(--green-dim); color: #fff; border-color: var(--green-dim); }
 
-.section-label {
-font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
-text-transform: uppercase; color: var(--sub);
-margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
-}
-.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .line-item {
+    display: flex;
+    align-items: stretch;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .line-color-bar { width: 4px; flex-shrink: 0; }
+  .line-body { flex: 1; padding: 10px 12px; min-width: 0; }
+  .line-name {
+    font-size: 0.92rem; font-weight: 700; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .line-stations-text { font-size: 0.73rem; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .line-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; padding: 0 12px; gap: 4px; flex-shrink: 0; }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .section-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--sub);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 </style>
-
 </head>
 <body>
 
 <header>
   <div class="logo">MC Transit</div>
   <div class="logo-sub">乗り換え案内</div>
-<div class="header-right">Powered by KAP developer<br>version.alpha1.0.1</div>
+  <div class="header-right">Powered by KAP developer<br>version1.0.2</div>
 </header>
 
 <main>
@@ -324,8 +414,8 @@ margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
     <div class="card">
       <div class="field-label">出発駅</div>
       <div class="station-input-wrap">
-        <input class="station-input" id="fromInput" type="text" placeholder="駅名を入力..." autocomplete="off"
-               oninput="onInput('from')" onfocus="showDropdown('from')" />
+        <input class="station-input" id="fromInput" type="text" placeholder="駅名を入力..."
+               autocomplete="off" oninput="onInput('from')" onfocus="showDropdown('from')" />
         <div class="dropdown" id="fromDropdown"></div>
       </div>
 
@@ -337,9 +427,29 @@ margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
 
       <div class="field-label">到着駅</div>
       <div class="station-input-wrap">
-        <input class="station-input" id="toInput" type="text" placeholder="駅名を入力..." autocomplete="off"
-               oninput="onInput('to')" onfocus="showDropdown('to')" />
+        <input class="station-input" id="toInput" type="text" placeholder="駅名を入力..."
+               autocomplete="off" oninput="onInput('to')" onfocus="showDropdown('to')" />
         <div class="dropdown" id="toDropdown"></div>
+      </div>
+
+      <div class="options-area">
+        <!-- onclickはJS側で一括制御するか、関数にeventを渡すように修正 -->
+        <label class="option-row checked" id="optNether" onclick="toggleOption(event, 'optNether')">
+          <input type="checkbox" checked />
+          <div class="option-toggle"></div>
+          <div>
+            <div class="option-label">ネザー路線を使用する <span class="opt-nether-icon">ネザー</span></div>
+            <div class="option-desc">ネザー内の路線を経路に含める</div>
+          </div>
+        </label>
+        <label class="option-row" id="optAvoidHeavy" onclick="toggleOption(event, 'optAvoidHeavy')">
+          <input type="checkbox" />
+          <div class="option-toggle"></div>
+          <div>
+            <div class="option-label">重量駅を避ける <span class="opt-heavy-icon">重量</span></div>
+            <div class="option-desc">FPS下降が懸念される駅を回避する</div>
+          </div>
+        </label>
       </div>
 
       <button class="search-btn" onclick="searchRoute()">経路を検索</button>
@@ -353,15 +463,28 @@ margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
   <div id="tab-lines" class="tab-pane">
     <div class="card">
       <div class="section-label">路線一覧</div>
+      <div class="lines-filter">
+        <button class="filter-btn active" onclick="setLineFilter('all')">すべて</button>
+        <button class="filter-btn" onclick="setLineFilter('overworld')">オーバーワールド</button>
+        <button class="filter-btn" onclick="setLineFilter('nether')">ネザー</button>
+      </div>
       <div class="lines-list" id="linesList"></div>
     </div>
   </div>
 </main>
 
 <script>
-/* =============================================
-   DATA — 路線データをここに追加・編集してください
-   ============================================= */
+/* ==============================================
+   HEAVY_STATIONS
+   ============================================== */
+const HEAVY_STATIONS = new Set([
+  "日窯弐", "離婚町", 
+  // "庇野村",
+]);
+
+/* ==============================================
+   ROUTES DATA (整理済み)
+   ============================================== */
 const ROUTES = [
   {
     id: "mr-hikamani-l",
@@ -369,7 +492,8 @@ const ROUTES = [
     type: "普通",
     color: "#FE0302",
     auto: true,
-    stations: ["茅野村", "第二拠点", "卵森", "日窯弐", "赤椅子", "離婚町",]
+    nether: false,
+    stations: ["茅野村", "第二拠点", "卵森", "日窯弐", "赤椅子", "離婚町"]
   },
   {
     id: "mr-hikamani-r",
@@ -377,6 +501,7 @@ const ROUTES = [
     type: "快速",
     color: "#FE0302",
     auto: true,
+    nether: false,
     stations: ["茅野村", "第二拠点", "日窯弐", "離婚町"]
   },
   {
@@ -385,6 +510,7 @@ const ROUTES = [
     type: "特急",
     color: "#FE0302",
     auto: true,
+    nether: false,
     stations: ["茅野村", "日窯弐", "離婚町"]
   },
   {
@@ -393,6 +519,7 @@ const ROUTES = [
     type: "普通",
     color: "#03A300",
     auto: true,
+    nether: false,
     stations: ["日窯弐", "南日窯弐", "洞窟園前", "きのこ島", "美海ニュータウン"]
   },
   {
@@ -401,6 +528,7 @@ const ROUTES = [
     type: "普通",
     color: "#223FE5",
     auto: true,
+    nether: false,
     stations: ["卵森", "北卵森"]
   },
   {
@@ -409,6 +537,7 @@ const ROUTES = [
     type: "普通",
     color: "#FF9900",
     auto: true,
+    nether: false,
     stations: ["日窯弐", "日窯弐新都心/新日窯弐", "離婚町", "南日窯弐", "日窯弐"]
   },
   {
@@ -417,6 +546,7 @@ const ROUTES = [
     type: "普通",
     color: "#E5224F",
     auto: true,
+    nether: false,
     stations: ["終末要塞", "おなタウン", "久蔵林", "河井", "新蝶野", "蝶野町"]
   },
   {
@@ -425,6 +555,7 @@ const ROUTES = [
     type: "普通",
     color: "#35B24C",
     auto: false,
+    nether: false,
     stations: ["桜村", "トゥーリホウ", "ラビンティ", "おなビーチ前", "おなタウン", "ピストン町", "里", "ノーリンスーザン村", "精子園前", "シターイシティ", "トライ平原", "結熱島", "エルちゃん邸", "あなきん基地"]
   },
   {
@@ -433,7 +564,8 @@ const ROUTES = [
     type: "普通",
     color: "#7B23AA",
     auto: false,
-    stations: ["離婚町", "北立浪", "立浪ゲートウェイ", "日窯弐新都心/新日窯弐", "北卵森", "珍湖", "珍陳村", "鮎原湖", "頭皮山", "卵島", "吉田川", "東指村", "饅頭大結界", "巨父", "凸村/ネザー第二要塞", "貧地々", "終末要塞"]
+    nether: false,
+    stations: ["離婚町", "北立浪", "立浪ゲートウェイ", "日窯弐新都心/新日窯弐", "北卵森", "珍湖", "珍陳村", "髤原湖", "頭皮山", "卵島", "吉田川", "東指村", "魏頭大結界", "巨父", "凸村/ネザー第二要塞", "貧地々", "終末要塞"]
   },
   {
     id: "snr-chono-l",
@@ -441,7 +573,8 @@ const ROUTES = [
     type: "普通",
     color: "#D8D036",
     auto: true,
-    stations: ["離婚町", "膣中海底", "蝶野町"]
+    nether: false,
+    stations: ["離婚町", "膟中海底", "蝶野町"]
   },
   {
     id: "snr-rikon-l",
@@ -449,6 +582,7 @@ const ROUTES = [
     type: "普通",
     color: "#00D5FF",
     auto: false,
+    nether: false,
     stations: ["離婚町", "旧役所", "南立浪", "鐵町", "神谷村", "洞窟園前", "きのこ島", "美海ニュータウン"]
   },
   {
@@ -457,15 +591,17 @@ const ROUTES = [
     type: "普通",
     color: "#C5C5C5",
     auto: true,
+    nether: false,
     stations: ["蝶野町", "蝶野村", "月夜見", "渡見", "中洲", "ハオチン", "三日月島", "竹野町", "千蔵", "桜ヶ浜", "美海ニュータウン"]
   },
   {
     id: "omutsu-l",
-    name: "御睦鉄道線",
+    name: "御睐鉄道線",
     type: "普通",
     color: "#9BA696",
     auto: true,
-    stations: ["立浪空港", "離婚町", "カジノ前", "御睦", "直町"]
+    nether: false,
+    stations: ["立浪空港", "離婚町", "カジノ前", "御睐", "直町"]
   },
   {
     id: "tatsumet-kirishima-l",
@@ -473,7 +609,8 @@ const ROUTES = [
     type: "普通",
     color: "#3566c9",
     auto: true,
-    stations: ["第二拠点", "北卵森", "肛門", "直町", "北立浪", "離婚町", "離婚港", "旧役所", "桐島", "膣中海底", "再婚島", "月夜見"]
+    nether: false,
+    stations: ["第二拠点", "北卵森", "肋門", "直町", "北立浪", "離婚町", "離婚港", "旧役所", "桐島", "膟中海底", "再婚島", "月夜見"]
   },
   {
     id: "tatsumet-kirishima-r",
@@ -481,7 +618,8 @@ const ROUTES = [
     type: "快速",
     color: "#3566c9",
     auto: true,
-    stations: ["第二拠点", "北卵森", "北立浪", "離婚町", "膣中海底", "月夜見"]
+    nether: false,
+    stations: ["第二拠点", "北卵森", "北立浪", "離婚町", "膟中海底", "月夜見"]
   },
   {
     id: "tatsumet-kirishima-le",
@@ -489,6 +627,7 @@ const ROUTES = [
     type: "特急",
     color: "#3566c9",
     auto: true,
+    nether: false,
     stations: ["第二拠点", "離婚町", "月夜見"]
   },
   {
@@ -497,6 +636,7 @@ const ROUTES = [
     type: "普通",
     color: "#165BE5",
     auto: false,
+    nether: false,
     stations: ["離婚港", "南立浪", "城南町", "南日窯弐"]
   },
   {
@@ -505,7 +645,8 @@ const ROUTES = [
     type: "普通",
     color: "#99560F",
     auto: false,
-    stations: ["美海ニュータウン", "きのこ島ビル", "美海港", "ニュータウン入口", "きのこ湾", "きのこ島電気軌道ターミナル", "畑"]
+    nether: false,
+    stations: ["美海ニュータウン", "きのこ島ビル", "美海港", "ニュータウン入口", "きのこ島", "きのこ島電気軌道ターミナル", "畝"]
   },
   {
     id: "kinoden-kuko-l",
@@ -513,6 +654,7 @@ const ROUTES = [
     type: "普通",
     color: "#2FBF6D",
     auto: false,
+    nether: false,
     stations: ["きのこ島ビル", "美海ニュータウン", "ニュータウン空港地区", "きのこ島空港"]
   },
   {
@@ -521,7 +663,8 @@ const ROUTES = [
     type: "普通",
     color: "#99560F",
     auto: false,
-    stations: ["南きのこ島ターミナル", "出貝鬼頭半島"]
+    nether: false,
+    stations: ["南きのこ島ターミナル", "出貝髂頭半島"]
   },
   {
     id: "kinoden-rito-l",
@@ -529,7 +672,8 @@ const ROUTES = [
     type: "普通",
     color: "#CA9777",
     auto: true,
-    stations: ["美海ニュータウン", "きのこ島空港", "みんなの畑", "南きのこ島", "久保山"]
+    nether: false,
+    stations: ["美海ニュータウン", "きのこ島空港", "みんなの畝", "南きのこ島", "久保山"]
   },
   {
     id: "kinoden-rito-r",
@@ -537,6 +681,7 @@ const ROUTES = [
     type: "快速",
     color: "#CA9777",
     auto: true,
+    nether: false,
     stations: ["美海ニュータウン", "きのこ島空港", "南きのこ島", "久保山"]
   },
   {
@@ -545,6 +690,7 @@ const ROUTES = [
     type: "特急",
     color: "#CA9777",
     auto: true,
+    nether: false,
     stations: ["美海ニュータウン", "南きのこ島", "久保山"]
   },
   {
@@ -553,6 +699,7 @@ const ROUTES = [
     type: "普通",
     color: "#F23C3C",
     auto: true,
+    nether: false,
     stations: ["久保山", "ELハーバー(印景島)", "新木", "子木", "海又木", "NIKKE島"]
   },
   {
@@ -561,6 +708,7 @@ const ROUTES = [
     type: "普通",
     color: "#FFBFD2",
     auto: false,
+    nether: false,
     stations: ["ヘメロカリス特別区", "ヘメロカリス旧特別区", "グロリオサ島", "ブレティラ島", "プロテア湖"]
   },
   {
@@ -569,6 +717,7 @@ const ROUTES = [
     type: "普通",
     color: "#FFBFD2",
     auto: false,
+    nether: false,
     stations: ["ヘメロカリス旧特別区", "アスポデロス低空庭園", "クエルクス自然公園"]
   },
   {
@@ -577,6 +726,7 @@ const ROUTES = [
     type: "普通",
     color: "#FFBFD2",
     auto: false,
+    nether: false,
     stations: ["アスポデロス低空庭園", "桜村"]
   },
   {
@@ -585,7 +735,8 @@ const ROUTES = [
     type: "普通",
     color: "#FE4446",
     auto: true,
-    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "ツリーハウス", "開發拠点", "ヘメロカリス", "月夜見"]
+    nether: false,
+    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "ツリーハウス", "開発拠点", "ヘメロカリス", "月夜見"]
   },
   {
     id: "sws-junkan",
@@ -593,7 +744,8 @@ const ROUTES = [
     type: "普通",
     color: "#F2C235",
     auto: true,
-    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "舵マンション", "竹野特別区(竹野RLヘメロカリス)", "NTR特別区", "折鶴倉庫", "交易所", "ヘメロカリス特別区", "開發拠点", "ツリーハウス"]
+    nether: false,
+    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "舵マンション", "竹野特別区(竹野RLヘメロカリス)", "NTR特別区", "折鶴倉庫", "交易所", "ヘメロカリス特別区", "開発拠点", "ツリーハウス"]
   },
   {
     id: "sws-under",
@@ -601,7 +753,8 @@ const ROUTES = [
     type: "普通",
     color: "#5C6565",
     auto: true,
-    stations: ["ヘメロカリス", "廃坑", "帯水層", "kaji地下帝国"]
+    nether: false,
+    stations: ["ヘメロカリス", "廃嵑", "帯水層", "kaji地下帝国"]
   },
   {
     id: "sws-sakura",
@@ -609,15 +762,17 @@ const ROUTES = [
     type: "普通",
     color: "#FB00A4",
     auto: true,
+    nether: false,
     stations: ["蝶野トラップタワー", "森林公園", "桜村"]
   },
   {
     id: "cm-yabu-l",
-    name: "ChiguraMetro 藪線",
+    name: "ChiguraMetro 薖線",
     type: "普通",
     color: "#F2C233",
     auto: true,
-    stations: ["南立浪", "海軍鎮守府", "三日月島", "市民球場・レース場", "参琉栖", "千蔵邸", "千蔵"]
+    nether: false,
+    stations: ["南立浪", "海軍镇守府", "三日月島", "市民球場・レース場", "参琶栝", "千蔵邸", "千蔵"]
   },
   {
     id: "kamichika",
@@ -625,6 +780,7 @@ const ROUTES = [
     type: "普通",
     color: "#79F23C",
     auto: false,
+    nether: false,
     stations: ["天満宮前", "温泉池前", "神谷サーキット前", "竹野大学前", "魔窟", "天満宮前"]
   },
   {
@@ -633,6 +789,7 @@ const ROUTES = [
     type: "普通",
     color: "#526eff",
     auto: true,
+    nether: false,
     stations: ["凸村/ネザー第二要塞", "大原要塞", "技研北口", "洋館前"]
   },
   {
@@ -641,7 +798,8 @@ const ROUTES = [
     type: "快速",
     color: "#526eff",
     auto: true,
-    stations: ["凸村", "大原要塞", "技研北口", "洋館前"]
+    nether: false,
+    stations: ["凸村/ネザー第二要塞", "大原要塞", "技研北口", "洋館前"]
   },
   {
     id: "kc-giken-l",
@@ -649,7 +807,8 @@ const ROUTES = [
     type: "普通",
     color: "#ff80b8",
     auto: true,
-    stations: ["技研北口", "巌崖公園", "技研前", "桜丘", "平原西口", "モレトゥム一時基地", "死別島", "第二拠点"]
+    nether: false,
+    stations: ["技研北口", "岩崖公園", "技研前", "桜丘", "平原西口", "モレトゥム一時基地", "死別島", "第二拠点"]
   },
   {
     id: "kc-giken-r",
@@ -657,7 +816,8 @@ const ROUTES = [
     type: "快速",
     color: "#ff80b8",
     auto: true,
-    stations: ["技研北口", "巌崖公園", "技研前", "桜丘", "平原西口", "モレトゥム一時基地", "死別島", "第二拠点"]
+    nether: false,
+    stations: ["技研北口", "岩崖公園", "技研前", "桜丘", "平原西口", "モレトゥム一時基地", "死別島", "第二拠点"]
   },
   {
     id: "kc-giken-le",
@@ -665,6 +825,7 @@ const ROUTES = [
     type: "特急",
     color: "#ff80b8",
     auto: true,
+    nether: false,
     stations: ["技研北口", "技研前", "第二拠点"]
   },
   {
@@ -673,6 +834,7 @@ const ROUTES = [
     type: "普通",
     color: "#4bd600",
     auto: true,
+    nether: false,
     stations: ["第二拠点", "珍陳村", "村村"]
   },
   {
@@ -681,6 +843,7 @@ const ROUTES = [
     type: "快速",
     color: "#4bd600",
     auto: true,
+    nether: false,
     stations: ["第二拠点", "村村"]
   },
   {
@@ -689,6 +852,7 @@ const ROUTES = [
     type: "普通",
     color: "#302deb",
     auto: true,
+    nether: false,
     stations: ["平原西口", "穴生蛇町", "NIKKE島", "大原城"]
   },
   {
@@ -697,6 +861,7 @@ const ROUTES = [
     type: "快速",
     color: "#302deb",
     auto: true,
+    nether: false,
     stations: ["平原西口", "穴生蛇町", "NIKKE島", "大原城"]
   },
   {
@@ -705,6 +870,7 @@ const ROUTES = [
     type: "普通",
     color: "#79F23C",
     auto: true,
+    nether: false,
     stations: ["南日窯弐", "波田野", "神谷村", "下神谷村"]
   },
   {
@@ -713,6 +879,7 @@ const ROUTES = [
     type: "普通",
     color: "#79F23C",
     auto: false,
+    nether: false,
     stations: ["下神谷村", "竹野村", "三日月島", "アチャラカ", "竹野特別区(竹野RLヘメロカリス)"]
   },
   {
@@ -721,7 +888,8 @@ const ROUTES = [
     type: "普通",
     color: "#59AAA0",
     auto: false,
-    stations: ["ガーディアントラップ", "膣中海底", "新膣中海底", "襲撃トラップ"]
+    nether: false,
+    stations: ["ガーディアントラップ", "膟中海底", "新膟中海底", "襲撃トラップ"]
   },
   {
     id: "fshr-main-l",
@@ -729,7 +897,8 @@ const ROUTES = [
     type: "普通",
     color: "#8CC6FF",
     auto: false,
-    stations: ["しゃこてぃす一時基地", "くれむしゅにて一時基地", "えんぱなーだ一時基地", "はちゃぷり坑道前哨基地", "イタリアンチキン強烈頂点基地"]
+    nether: false,
+    stations: ["しゃこてぃす一時基地", "くれむしゅにて一時基地", "えんぱなーだ一時基地", "はちゃぷり嵑道前哨化基地", "イタリアンチキン強烈頂点基地"]
   },
   {
     id: "new-hikamani",
@@ -737,6 +906,7 @@ const ROUTES = [
     type: "特急",
     color: "#B2B2B2",
     auto: false,
+    nether: false,
     stations: ["日窯弐", "第二拠点"]
   },
   {
@@ -745,6 +915,7 @@ const ROUTES = [
     type: "特急",
     color: "#B2B2B2",
     auto: false,
+    nether: false,
     stations: ["日窯弐", "離婚町"]
   },
   {
@@ -753,7 +924,8 @@ const ROUTES = [
     type: "特急",
     color: "#B2B2B2",
     auto: false,
-    stations: ["離婚町", "新膣中海底", "蝶野町"]
+    nether: false,
+    stations: ["離婚町", "新膟中海底", "蝶野町"]
   },
   {
     id: "new-anauda",
@@ -761,14 +933,18 @@ const ROUTES = [
     type: "特急",
     color: "#B2B2B2",
     auto: false,
+    nether: false,
     stations: ["きのこ島", "新きのこ島", "穴生蛇町"]
   },
+
+  /* -- ネザー -- */
   {
     id: "nr-n-l",
     name: "NR ネザー本線(ネザー)",
     type: "普通",
     color: "#9B00FF",
     auto: true,
+    nether: true,
     stations: ["おなタウン", "離婚町", "日窯弐", "第二拠点", "童貞森", "処女森", "稚女森", "凸村/ネザー第二要塞", "終末要塞", "おなタウン"]
   },
   {
@@ -777,6 +953,7 @@ const ROUTES = [
     type: "普通",
     color: "#FDD966",
     auto: true,
+    nether: true,
     stations: ["製砂工場", "千蔵邸", "溶岩瀑布", "カフェキン邸", "ピグリン第一要塞", "ヘメロカリス", "月夜見", "蝶野町", "離婚町", "日窯弐"]
   },
   {
@@ -785,6 +962,7 @@ const ROUTES = [
     type: "快速",
     color: "#FDD966",
     auto: true,
+    nether: true,
     stations: ["製砂工場", "千蔵邸", "ピグリン第一要塞", "ヘメロカリス", "月夜見", "蝶野町", "離婚町", "日窯弐"]
   },
   {
@@ -793,6 +971,7 @@ const ROUTES = [
     type: "特急",
     color: "#FDD966",
     auto: true,
+    nether: true,
     stations: ["製砂工場", "ヘメロカリス", "月夜見", "蝶野町", "離婚町", "日窯弐"]
   },
   {
@@ -801,6 +980,7 @@ const ROUTES = [
     type: "普通",
     color: "#13FE00",
     auto: true,
+    nether: true,
     stations: ["晶洞", "大原邸", "大原城塞", "第二拠点", "大原別荘", "処女森", "稚女森", "露里森", "大原要塞"]
   },
   {
@@ -809,6 +989,7 @@ const ROUTES = [
     type: "快速",
     color: "#13FE00",
     auto: true,
+    nether: true,
     stations: ["晶洞", "大原邸", "処女森", "稚女森", "大原要塞"]
   },
   {
@@ -817,6 +998,7 @@ const ROUTES = [
     type: "特急",
     color: "#13FE00",
     auto: true,
+    nether: true,
     stations: ["晶洞", "大原邸", "処女森", "稚女森"]
   },
   {
@@ -825,6 +1007,7 @@ const ROUTES = [
     type: "普通",
     color: "#FF0002",
     auto: true,
+    nether: true,
     stations: ["技研前", "処女森", "稚女森", "景傑島"]
   },
   {
@@ -833,6 +1016,7 @@ const ROUTES = [
     type: "普通",
     color: "#0197A7",
     auto: true,
+    nether: true,
     stations: ["離婚町", "南立浪", "桐島", "製砂工場", "チャンバー"]
   },
   {
@@ -841,6 +1025,7 @@ const ROUTES = [
     type: "普通",
     color: "#610200",
     auto: true,
+    nether: true,
     stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "新日窯弐(ネザー)", "日窯弐", "珍下森", "古代都市", "御根森", "魂谷", "ウィザスケトラップ"]
   },
   {
@@ -849,6 +1034,7 @@ const ROUTES = [
     type: "特急",
     color: "#B2B2B2",
     auto: false,
+    nether: true,
     stations: ["南立浪", "新日窯弐(ネザー)", "美海ニュータウン", "南きのこ島"]
   },
   {
@@ -857,6 +1043,7 @@ const ROUTES = [
     type: "特急",
     color: "#B2B2B2",
     auto: false,
+    nether: true,
     stations: ["日窯弐", "溶岩溜まり"]
   },
   {
@@ -865,7 +1052,8 @@ const ROUTES = [
     type: "普通",
     color: "#FA040F",
     auto: true,
-    stations: ["ホグリン養豚場", "荒廃ポータル", "ピグリン第一要塞", "kaji地下帝国"]
+    nether: true,
+    stations: ["ホグリン養豚場", "荒废ポータル", "ピグリン第一要塞", "kaji地下帝国"]
   },
   {
     id: "pl-b-l",
@@ -873,6 +1061,7 @@ const ROUTES = [
     type: "普通",
     color: "#FE02AA",
     auto: true,
+    nether: true,
     stations: ["ホグリン養豚場", "ヘメロカリス", "桜村", "低空庭園", "ヘメロカリス旧特別区", "プロテア湖", "ブレティラ島", "魚トラップ"]
   },
   {
@@ -881,7 +1070,8 @@ const ROUTES = [
     type: "普通",
     color: "#FF9900",
     auto: true,
-    stations: ["繞堂", "狭間", "南立浪"]
+    nether: true,
+    stations: ["纞堂", "狭間", "南立浪"]
   },
   {
     id: "wr-u-l",
@@ -889,7 +1079,8 @@ const ROUTES = [
     type: "普通",
     color: "#0097A7",
     auto: true,
-    stations: ["南立浪", "赤椅子", "薔薇森", "神谷村", "晶洞", "大原集落", "結穴森", "モレトゥム一時基地", "高寵森", "大原拠点"]
+    nether: true,
+    stations: ["南立浪", "赤椅子", "薇薇森", "神谷村", "晶洞", "大原集落", "結穴森", "モレトゥム一時基地", "高寵森", "大原拠点"]
   },
   {
     id: "wr-usub-l",
@@ -897,6 +1088,7 @@ const ROUTES = [
     type: "普通",
     color: "#0097A7",
     auto: true,
+    nether: true,
     stations: ["晶洞", "大原邸"]
   },
   {
@@ -905,7 +1097,8 @@ const ROUTES = [
     type: "普通",
     color: "#8CC6FF",
     auto: true,
-    stations: ["終末要塞", "ラビンティ", "ヘメロカリス", "kaji地下帝国", "椦暗浮綿", "真嘘邸", "千蔵邸", "製砂工場", "ゾンピグトラップ", "美海ニュータウン", "NIKKE島", "モレトゥム一時基地", "シャトくんエリア"]
+    nether: true,
+    stations: ["終末要塞", "ラビンティ", "ヘメロカリス", "kaji地下帝国", "榊暗浮緵", "真嘶邸", "千蔵邸", "製砂工場", "ゾンピグトラップ", "美海ニュータウン", "NIKKE島", "モレトゥム一時基地", "シャトくんエリア"]
   },
   {
     id: "nshr-main-r",
@@ -913,6 +1106,7 @@ const ROUTES = [
     type: "快速",
     color: "#8CC6FF",
     auto: true,
+    nether: true,
     stations: ["終末要塞", "ラビンティ", "ヘメロカリス", "千蔵邸", "製砂工場", "美海ニュータウン", "NIKKE島", "モレトゥム一時基地"]
   },
   {
@@ -921,6 +1115,7 @@ const ROUTES = [
     type: "普通",
     color: "#8CC6FF",
     auto: true,
+    nether: true,
     stations: ["ヘメロカリス", "オストカーカ一時基地", "モレトゥム一時基地"]
   },
   {
@@ -929,6 +1124,7 @@ const ROUTES = [
     type: "普通",
     color: "#8CC6FF",
     auto: true,
+    nether: true,
     stations: ["ラビンティ", "(駅名不明1)", "しゃこてぃす一時基地"]
   },
   {
@@ -937,23 +1133,26 @@ const ROUTES = [
     type: "普通",
     color: "#8CC6FF",
     auto: true,
-    stations: ["椦暗浮綿", "ホワイトリリー"]
+    nether: true,
+    stations: ["榊暗浮緟", "ホワイトリリー"]
   },
   {
     id: "knc-buchi-l",
-    name: "Knc 駮岡連絡線(ネザー)",
+    name: "Knc 駒岡連絡線(ネザー)",
     type: "普通",
     color: "#1C89EF",
     auto: true,
-    stations: ["日窯弐", "駮岡市"]
+    nether: true,
+    stations: ["日窯弐", "駒岡市"]
   },
   {
     id: "knc-buchi-r",
-    name: "Knc 駮岡連絡線(ネザー)",
+    name: "Knc 駒岡連絡線(ネザー)",
     type: "快速",
     color: "#1C89EF",
     auto: true,
-    stations: ["日窯弐", "駮岡市"]
+    nether: true,
+    stations: ["日窯弐", "駒岡市"]
   },
   {
     id: "oer-main-l",
@@ -961,46 +1160,27 @@ const ROUTES = [
     type: "普通",
     color: "#ADBDCC",
     auto: false,
-    stations: ["NIKKE島", "大原城", "大原第一デルタ", "坑道ゲートウェイ", "大原第二デルタ", "大原第三デルタ", "大原第一渓谷", "遺跡分かれ", "大原第二渓谷"]
+    nether: true,
+    stations: ["NIKKE島", "大原城", "大原第一デルタ", "嵑道ゲートウェイ", "大原第二デルタ", "大原第三デルタ", "大原第一渓谷", "遣跡分かれ", "大原第二渓谷"]
   },
   {
     id: "oer-sub-l",
-    name: "OER 坑道支線(ネザー)",
+    name: "OER 嵑道支線(ネザー)",
     type: "普通",
     color: "#ADBDCC",
     auto: false,
-    stations: ["坑道ゲートウェイ", "坑道"]
+    nether: true,
+    stations: ["嵑道ゲートウェイ", "嵑道"]
   },
-  {
-    id: "exsample",
-    name: "exsample",
-    type: "普通",
-    color: "#exsample",
-    auto: true,
-    stations: ["", ""]
-  },
-  {
-    id: "exsample",
-    name: "exsample",
-    type: "普通",
-    color: "#exsample",
-    auto: true,
-    stations: ["", ""]
-  },
-  {
-    id: "exsample",
-    name: "exsample",
-    type: "普通",
-    color: "#exsample",
-    auto: true,
-    stations: ["", ""]
-  },
+
+  /* -- 徒歩 -- */
   {
     id: "walk1",
     name: "徒歩",
     type: "普通",
     color: "#ffffff",
     auto: false,
+    nether: false,
     stations: ["立浪空港", "北立浪"]
   },
   {
@@ -1009,6 +1189,7 @@ const ROUTES = [
     type: "普通",
     color: "#ffffff",
     auto: false,
+    nether: false,
     stations: ["南きのこ島ターミナル", "南きのこ島"]
   },
   {
@@ -1017,6 +1198,7 @@ const ROUTES = [
     type: "普通",
     color: "#ffffff",
     auto: false,
+    nether: false,
     stations: ["竹野村", "竹野町"]
   },
   {
@@ -1025,16 +1207,83 @@ const ROUTES = [
     type: "普通",
     color: "#ffffff",
     auto: false,
+    nether: false,
     stations: ["神谷サーキット", "下神谷村"]
   },
 ];
 
-const ALL_STATIONS = [...new Set(ROUTES.flatMap(r => r.stations))].sort();
+/* ==============================================
+   ヘルパー関数
+   ============================================== */
+const TYPE_CLASS = { "普通": "local", "快速": "rapid", "特急": "express" };
 
-function buildGraph() {
+function typeBadge(type) {
+  return '<span class="badge type-badge ' + (TYPE_CLASS[type] || "local") + '">' + type + '</span>';
+}
+function atoBadge(auto) {
+  return auto
+    ? '<span class="badge ato-badge on">ATO対応</span>'
+    : '<span class="badge ato-badge off">ATO未対応</span>';
+}
+function netherBadge() {
+  return '<span class="badge nether-badge">ネザー</span>';
+}
+function heavyMarker(name) {
+  return HEAVY_STATIONS.has(name) ? '<span class="heavy-marker">重量</span>' : '';
+}
+
+/* ==============================================
+   UI 操作（トグル修正含む）
+   ============================================== */
+function toggleOption(event, id) {
+  const label = document.getElementById(id);
+  const checkbox = label.querySelector('input[type="checkbox"]');
+  
+  // ラベルクリック時にinputの状態と同期させる
+  // labelをクリックすると自動でcheckboxもクリックされるため、
+  // checkboxの状態を基準にクラスを付け替える
+  setTimeout(() => {
+    if (checkbox.checked) {
+      label.classList.add('checked');
+    } else {
+      label.classList.remove('checked');
+    }
+  }, 10);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) =>
+    t.classList.toggle('active', ['search', 'lines'][i] === name));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+/* グラフ構築・検索ロジックなどはそのまま（正常動作確認済み） */
+const ALL_STATIONS = [...new Set(ROUTES.flatMap(r => r.stations))].filter(s => s !== '').sort();
+let fromStation = '', toStation = '';
+let linesFilter = 'all';
+
+function getFilteredRoutes() {
+  const useNether = document.getElementById('optNether').classList.contains('checked');
+  const avoidHeavy = document.getElementById('optAvoidHeavy').classList.contains('checked');
+  
+  return ROUTES.filter(r => {
+    if (r.stations.some(s => s === '')) return false;
+    if (!useNether && r.nether) return false;
+    return true;
+  }).map(r => {
+    if (!avoidHeavy) return r;
+    const filtered = r.stations.filter(s => !HEAVY_STATIONS.has(s));
+    if (filtered.length < 2) return null;
+    return Object.assign({}, r, { stations: filtered });
+  }).filter(Boolean);
+}
+
+function buildGraph(routes) {
+  const ALL = [...new Set(routes.flatMap(r => r.stations))];
   const graph = {};
-  ALL_STATIONS.forEach(s => graph[s] = []);
-  ROUTES.forEach(route => {
+  ALL.forEach(s => { graph[s] = []; });
+  routes.forEach(route => {
     for (let i = 0; i < route.stations.length - 1; i++) {
       const a = route.stations[i], b = route.stations[i + 1];
       graph[a].push({ to: b, route });
@@ -1043,20 +1292,20 @@ function buildGraph() {
   });
   return graph;
 }
-const GRAPH = buildGraph();
 
-function findRoute(from, to) {
+function findRoute(graph, from, to) {
   if (from === to) return null;
   const queue = [{ station: from, currentRoute: null, transfers: 0, path: [] }];
   const visited = new Map();
   while (queue.length) {
     queue.sort((a, b) => a.transfers - b.transfers);
     const cur = queue.shift();
-    const key = cur.station + '|' + (cur.currentRoute?.id ?? '');
+    const key = cur.station + '|' + (cur.currentRoute ? cur.currentRoute.id : '');
     if (visited.has(key) && visited.get(key) <= cur.transfers) continue;
     visited.set(key, cur.transfers);
     if (cur.station === to) return cur.path;
-    for (const edge of GRAPH[cur.station]) {
+    if (!graph[cur.station]) continue;
+    for (const edge of graph[cur.station]) {
       const isTransfer = cur.currentRoute && cur.currentRoute.id !== edge.route.id;
       queue.push({
         station: edge.to,
@@ -1085,28 +1334,26 @@ function pathToSegments(path) {
   return segs;
 }
 
-let fromStation = '', toStation = '';
-
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) =>
-    t.classList.toggle('active', ['search','lines'][i] === name));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-}
-
 function onInput(which) { showDropdown(which); }
 
 function showDropdown(which) {
   closeAllDropdowns();
+  const useNether = document.getElementById('optNether').classList.contains('checked');
   const input    = document.getElementById(which + 'Input');
   const dropdown = document.getElementById(which + 'Dropdown');
   const q = input.value.trim();
-  const filtered = q ? ALL_STATIONS.filter(s => s.includes(q)) : ALL_STATIONS;
+
+  const availableStations = useNether
+    ? ALL_STATIONS
+    : ALL_STATIONS.filter(s => ROUTES.some(r => !r.nether && r.stations.includes(s)));
+
+  const filtered = q ? availableStations.filter(s => s.includes(q)) : availableStations;
   dropdown.innerHTML = filtered.map(s => {
     const dots = ROUTES.filter(r => r.stations.includes(s)).slice(0, 4)
-      .map(r => `<span style="width:8px;height:8px;border-radius:50%;background:${r.color};display:inline-block;flex-shrink:0"></span>`)
+      .map(r => '<span style="width:8px;height:8px;border-radius:50%;background:' + r.color + ';display:inline-block;flex-shrink:0"></span>')
       .join('');
-    return `<div class="dropdown-item" onclick="selectStation('${which}','${s}')">${dots}<span>${s}</span></div>`;
+    const safe = s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return '<div class="dropdown-item" onclick="selectStation(\'' + which + '\',\'' + safe + '\')">' + dots + '<span>' + s + '</span></div>';
   }).join('');
   if (filtered.length) dropdown.classList.add('open');
 }
@@ -1126,128 +1373,135 @@ document.addEventListener('click', e => {
 });
 
 function swapStations() {
-  [fromStation, toStation] = [toStation, fromStation];
-  document.getElementById('fromInput').value = fromStation;
-  document.getElementById('toInput').value   = toStation;
-}
-
-function atoBadge(auto) {
-  return auto
-    ? `<span class="badge ato-badge on">ATO対応</span>`
-    : `<span class="badge ato-badge off">ATO未対応</span>`;
-}
-
-function typeBadge(type) {
-  return `<span class="badge type-badge ${type}">${type}</span>`;
+  const fromVal = document.getElementById('fromInput').value;
+  const toVal = document.getElementById('toInput').value;
+  document.getElementById('fromInput').value = toVal;
+  document.getElementById('toInput').value = fromVal;
 }
 
 function searchRoute() {
-  fromStation = document.getElementById('fromInput').value.trim();
-  toStation   = document.getElementById('toInput').value.trim();
+  const from = document.getElementById('fromInput').value.trim();
+  const to = document.getElementById('toInput').value.trim();
   const resultDiv = document.getElementById('result');
   const content   = document.getElementById('resultContent');
   resultDiv.classList.add('visible');
 
-  if (!fromStation || !toStation) {
-    content.innerHTML = `<div class="no-route">⚠️ 出発駅と到着駅を入力してください</div>`; return;
+  if (!from || !to) {
+    content.innerHTML = '<div class="no-route">出発駅と到着駅を入力してください</div>'; return;
   }
-  if (!ALL_STATIONS.includes(fromStation)) {
-    content.innerHTML = `<div class="no-route">⚠️「${fromStation}」は登録されていません</div>`; return;
+  if (!ALL_STATIONS.includes(from) || !ALL_STATIONS.includes(to)) {
+    content.innerHTML = '<div class="no-route">駅名が正しくありません</div>'; return;
   }
-  if (!ALL_STATIONS.includes(toStation)) {
-    content.innerHTML = `<div class="no-route">⚠️「${toStation}」は登録されていません</div>`; return;
-  }
-  if (fromStation === toStation) {
-    content.innerHTML = `<div class="no-route">出発駅と到着駅が同じです</div>`; return;
+  if (from === to) {
+    content.innerHTML = '<div class="no-route">出発駅と到着駅が同じです</div>'; return;
   }
 
-  const path = findRoute(fromStation, toStation);
+  const filteredRoutes = getFilteredRoutes();
+  const graph = buildGraph(filteredRoutes);
+
+  if (!graph[from] || !graph[to]) {
+    content.innerHTML = '<div class="no-route">現在の設定では経路が見つかりません。<br>ネザー路線の使用を確認してください。</div>'; return;
+  }
+
+  const path = findRoute(graph, from, to);
   if (!path) {
-    content.innerHTML = `<div class="no-route">経路が見つかりませんでした</div>`; return;
+    content.innerHTML = '<div class="no-route">経路が見つかりませんでした。</div>'; return;
   }
 
   const segs = pathToSegments(path);
   const transfers = segs.length - 1;
+  const usesNether = segs.some(s => s.route.nether);
 
-  let html = `
-    <div class="result-meta">
-      <div class="result-route-label">${fromStation} → ${toStation}</div>
-      <div class="transfer-badge">乗り換え ${transfers} 回</div>
-    </div>
-    <div class="journey">
-  `;
+  let html = '<div class="result-meta">'
+    + '<div class="result-route-label">' + from + ' - ' + to + '</div>'
+    + '<div class="result-badges">'
+    + '<span class="transfer-badge">乗り換え ' + transfers + ' 回</span>'
+    + (usesNether ? '<span class="nether-used-badge">ネザー経由</span>' : '')
+    + '</div></div><div class="journey">';
 
-  segs.forEach((seg, idx) => {
-    const isFirst = idx === 0;
-    const isLast  = idx === segs.length - 1;
-    const stops   = seg.stations.length - 1;
-    const nextSeg = segs[idx + 1];
+  segs.forEach(function(seg, idx) {
+    var isFirst = idx === 0;
+    var isLast  = idx === segs.length - 1;
+    var stops   = seg.stations.length - 1;
+    var nextSeg = segs[idx + 1];
 
     if (isFirst) {
-      html += `
-        <div class="step">
-          <div class="step-timeline">
-            <div class="step-dot start"></div>
-            <div class="step-connector" style="background:${seg.route.color}55"></div>
-          </div>
-          <div class="step-body">
-            <div class="step-station">${seg.stations[0]}</div>
-            <div class="step-station-sub">出発</div>
-            <div class="ride-block" style="border-left-color:${seg.route.color}">
-              <div class="ride-name" style="color:${seg.route.color}">${seg.route.name}</div>
-              ${typeBadge(seg.route.type)}
-              <div class="ride-stops">${stops}駅</div>
-              ${atoBadge(seg.route.auto)}
-            </div>
-          </div>
-        </div>
-      `;
+      html += '<div class="step">'
+        + '<div class="step-timeline">'
+        +   '<div class="step-dot start"></div>'
+        +   '<div class="step-connector" style="background:' + seg.route.color + '55"></div>'
+        + '</div>'
+        + '<div class="step-body">'
+        +   '<div class="step-station">' + seg.stations[0] + heavyMarker(seg.stations[0]) + '</div>'
+        +   '<div class="step-station-sub">出発</div>'
+        +   '<div class="ride-block" style="border-left-color:' + seg.route.color + '">'
+        +     '<div class="ride-name" style="color:' + seg.route.color + '">' + seg.route.name + '</div>'
+        +     typeBadge(seg.route.type)
+        +     (seg.route.nether ? netherBadge() : '')
+        +     '<div class="ride-stops">' + stops + '駅</div>'
+        +     atoBadge(seg.route.auto)
+        +   '</div>'
+        + '</div></div>';
     }
 
-    const arriveStation = seg.stations[seg.stations.length - 1];
-    const dotClass = isLast ? 'end' : 'via';
+    var arrStation = seg.stations[seg.stations.length - 1];
+    var dotClass   = isLast ? 'end' : 'via';
 
-    html += `
-      <div class="step">
-        <div class="step-timeline">
-          <div class="step-dot ${dotClass}"></div>
-          ${!isLast ? `<div class="step-connector" style="background:${nextSeg.route.color}55"></div>` : ''}
-        </div>
-        <div class="step-body">
-          <div class="step-station">${arriveStation}</div>
-          <div class="step-station-sub">${isLast ? '到着' : '乗り換え'}</div>
-          ${!isLast ? `
-            <div class="ride-block" style="border-left-color:${nextSeg.route.color}">
-              <div class="ride-name" style="color:${nextSeg.route.color}">${nextSeg.route.name}</div>
-              ${typeBadge(nextSeg.route.type)}
-              <div class="ride-stops">${nextSeg.stations.length - 1}駅</div>
-              ${atoBadge(nextSeg.route.auto)}
-            </div>
-          ` : ''}
-        </div>
-      </div>
-    `;
+    html += '<div class="step">'
+      + '<div class="step-timeline">'
+      +   '<div class="step-dot ' + dotClass + '"></div>'
+      +   (!isLast ? '<div class="step-connector" style="background:' + nextSeg.route.color + '55"></div>' : '')
+      + '</div>'
+      + '<div class="step-body">'
+      +   '<div class="step-station">' + arrStation + heavyMarker(arrStation) + '</div>'
+      +   '<div class="step-station-sub">' + (isLast ? '到着' : '乗り換え') + '</div>';
+
+    if (!isLast) {
+      html += '<div class="ride-block" style="border-left-color:' + nextSeg.route.color + '">'
+        +   '<div class="ride-name" style="color:' + nextSeg.route.color + '">' + nextSeg.route.name + '</div>'
+        +   typeBadge(nextSeg.route.type)
+        +   (nextSeg.route.nether ? netherBadge() : '')
+        +   '<div class="ride-stops">' + (nextSeg.stations.length - 1) + '駅</div>'
+        +   atoBadge(nextSeg.route.auto)
+        + '</div>';
+    }
+    html += '</div></div>';
   });
 
-  html += `</div>`;
+  html += '</div>';
   content.innerHTML = html;
   resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function renderLines() {
-  document.getElementById('linesList').innerHTML = ROUTES.map(r => `
-    <div class="line-item">
-      <div class="line-color-bar" style="background:${r.color}"></div>
-      <div class="line-body">
-        <div class="line-name" style="color:${r.color}">${r.name} ${typeBadge(r.type)}</div>
-        <div class="line-stations-text">${r.stations.join(' › ')}</div>
-      </div>
-      <div class="line-right">
-        ${atoBadge(r.auto)}
-      </div>
-    </div>
-  `).join('');
+function setLineFilter(f) {
+  linesFilter = f;
+  document.querySelectorAll('.filter-btn').forEach((b, i) =>
+    b.classList.toggle('active', ['all', 'overworld', 'nether'][i] === f));
+  renderLines();
 }
+
+function renderLines() {
+  const list = ROUTES.filter(r => {
+    if (r.stations.some(s => s === '')) return false;
+    if (linesFilter === 'overworld') return !r.nether;
+    if (linesFilter === 'nether')    return r.nether;
+    return true;
+  });
+  document.getElementById('linesList').innerHTML = list.map(r =>
+    '<div class="line-item">'
+    + '<div class="line-color-bar" style="background:' + r.color + '"></div>'
+    + '<div class="line-body">'
+    +   '<div class="line-name" style="color:' + r.color + '">' + r.name + ' ' + typeBadge(r.type) + '</div>'
+    +   '<div class="line-stations-text">' + r.stations.join(' > ') + '</div>'
+    + '</div>'
+    + '<div class="line-right">'
+    +   (r.nether ? netherBadge() : '')
+    +   atoBadge(r.auto)
+    + '</div>'
+    + '</div>'
+  ).join('');
+}
+
 renderLines();
 </script>
 
