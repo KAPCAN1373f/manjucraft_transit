@@ -159,12 +159,7 @@
   }
   .swap-btn:hover { border-color: var(--green); color: var(--green); transform: rotate(180deg); }
 
-  .options-area {
-    margin-top: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+  .options-area { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
   .option-row {
     display: flex;
     align-items: center;
@@ -180,8 +175,7 @@
   .option-row:hover { border-color: var(--green); }
   .option-row input[type="checkbox"] { display: none; }
   .option-toggle {
-    width: 36px;
-    height: 20px;
+    width: 36px; height: 20px;
     background: var(--border);
     border-radius: 10px;
     position: relative;
@@ -207,18 +201,14 @@
     background: rgba(155,0,255,0.18);
     color: #ce93d8;
     border: 1px solid rgba(155,0,255,0.3);
-    padding: 1px 6px;
-    border-radius: 3px;
-    white-space: nowrap;
+    padding: 1px 6px; border-radius: 3px; white-space: nowrap;
   }
   .opt-heavy-icon {
     font-size: 0.75rem;
     background: rgba(242,139,47,0.15);
     color: var(--danger);
     border: 1px solid rgba(242,139,47,0.3);
-    padding: 1px 6px;
-    border-radius: 3px;
-    white-space: nowrap;
+    padding: 1px 6px; border-radius: 3px; white-space: nowrap;
   }
 
   .search-btn {
@@ -237,6 +227,7 @@
     transition: background 0.15s;
   }
   .search-btn:hover { background: var(--green); }
+  .search-btn:active { background: #1b5e20; }
 
   #result { display: none; }
   #result.visible { display: block; }
@@ -254,35 +245,35 @@
   .result-route-label { font-size: 0.8rem; font-weight: 700; color: var(--sub); }
   .result-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .transfer-badge {
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: var(--green-bg);
-    color: var(--green);
-    border: 1px solid var(--green-dim);
-    white-space: nowrap;
+    font-size: 0.78rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    background: var(--green-bg); color: var(--green);
+    border: 1px solid var(--green-dim); white-space: nowrap;
   }
   .nether-used-badge {
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 20px;
-    background: rgba(155,0,255,0.15);
-    color: #ce93d8;
-    border: 1px solid rgba(155,0,255,0.3);
-    white-space: nowrap;
+    font-size: 0.72rem; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+    background: rgba(155,0,255,0.15); color: #ce93d8;
+    border: 1px solid rgba(155,0,255,0.3); white-space: nowrap;
   }
 
+  /* ---- Journey timeline ---- */
   .journey { display: flex; flex-direction: column; }
+
+  /* 1ステップ = タイムライン列 + ボディ列 */
   .step { display: flex; gap: 12px; }
+
+  /* タイムライン列 */
   .step-timeline {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 20px;
     flex-shrink: 0;
+    position: relative;
   }
+
+  /* 主要駅ドット */
   .step-dot {
     width: 13px; height: 13px;
     border-radius: 50%;
@@ -295,7 +286,77 @@
   .step-dot.start { border-color: var(--green); background: var(--green); }
   .step-dot.end   { border-color: #e0e0e0; background: #e0e0e0; }
   .step-dot.via   { border-color: #e0e0e0; background: var(--surface); }
-  .step-connector { flex: 1; width: 2px; min-height: 8px; }
+
+  /* タイムライン縦線 + 途中駅展開ボタン を包むラッパー */
+  .step-connector-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    position: relative;
+  }
+
+  /* 縦線（上部分 / 下部分に分割して途中にボタンを挟む） */
+  .connector-line {
+    width: 2px;
+    flex: 1;
+    min-height: 6px;
+  }
+
+  /* 途中駅展開ボタン */
+  .expand-btn {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--sub);
+    font-size: 0.5rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    line-height: 1;
+    padding: 0;
+    /* ボタン自体は 0 の flex 成長 -- 上下の line が残りを分け合う */
+    margin: 3px 0;
+  }
+  .expand-btn:hover { border-color: var(--green); color: var(--green); background: var(--surface); }
+  .expand-btn.open  { border-color: var(--green); color: var(--green); background: rgba(76,175,80,0.08); }
+
+  /* 途中駅リスト（アコーディオン） */
+  .intermediate-stops {
+    display: none;          /* 初期非表示 */
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .intermediate-stops.open { display: flex; }
+
+  /* 途中駅 1 行 = タイムライン小ドット + 駅名 */
+  .mid-stop {
+    display: flex;
+    align-items: center;
+    gap: 0;                  /* タイムライン幅は親の幅で揃える */
+  }
+  .mid-stop-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex-shrink: 0;
+  }
+  .mid-connector-top { width: 2px; height: 6px; }
+  .mid-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .mid-connector-bottom { width: 2px; height: 6px; }
+
+  /* ---- step body ---- */
   .step-body { flex: 1; padding-bottom: 20px; }
   .step-station { font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
   .step-station-sub { font-size: 0.73rem; color: var(--sub); margin-bottom: 6px; }
@@ -306,11 +367,8 @@
     color: var(--danger);
     border: 1px solid rgba(242,139,47,0.4);
     background: rgba(242,139,47,0.1);
-    padding: 0px 5px;
-    border-radius: 3px;
-    margin-left: 6px;
-    vertical-align: middle;
-    font-weight: 700;
+    padding: 0 5px; border-radius: 3px;
+    margin-left: 6px; vertical-align: middle; font-weight: 700;
   }
 
   .ride-block {
@@ -328,52 +386,54 @@
   .ride-name { font-size: 0.88rem; font-weight: 700; flex: 1; min-width: 60px; }
   .ride-stops { font-size: 0.75rem; color: var(--sub); white-space: nowrap; }
 
+  /* 途中駅テキスト行（step-body 側） */
+  .mid-stop-body {
+    flex: 1;
+    padding: 0 0 0 8px;
+    /* 高さは mid-stop-timeline に合わせる */
+    display: flex;
+    align-items: center;
+  }
+  .mid-stop-name {
+    font-size: 0.8rem;
+    color: var(--sub);
+    line-height: 1;
+  }
+
+  /* badges */
   .badge {
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 3px;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-    flex-shrink: 0;
-    border: 1px solid transparent;
+    font-size: 0.65rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 3px;
+    letter-spacing: 0.04em; white-space: nowrap;
+    flex-shrink: 0; border: 1px solid transparent;
   }
   .ato-badge.on  { background: rgba(76,175,80,0.18);  color: #66bb6a; border-color: rgba(76,175,80,0.35); }
   .ato-badge.off { background: rgba(242,139,47,0.15); color: var(--danger); border-color: rgba(242,139,47,0.3); }
   .type-badge.local   { background: rgba(105,105,105,0.25); color: #bdbdbd; border-color: #616161; }
   .type-badge.rapid   { background: rgba(100,177,255,0.2);  color: #90caf9; border-color: rgba(100,177,255,0.5); }
   .type-badge.express { background: rgba(255,221,99,0.18);  color: #ffe082; border-color: rgba(255,221,99,0.5); }
-  .nether-badge {
-    background: rgba(155,0,255,0.15);
-    color: #ce93d8;
-    border-color: rgba(155,0,255,0.35);
-  }
+  .nether-badge { background: rgba(155,0,255,0.15); color: #ce93d8; border-color: rgba(155,0,255,0.35); }
 
   .no-route { text-align: center; padding: 28px 0; color: var(--sub); font-size: 0.9rem; line-height: 1.8; }
 
+  /* Lines list */
   .lines-list { display: flex; flex-direction: column; gap: 8px; }
   .lines-filter { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
   .filter-btn {
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 4px;
+    font-size: 0.75rem; font-weight: 700;
+    padding: 4px 10px; border-radius: 4px;
     border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--sub);
-    cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--card); color: var(--sub);
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
     transition: all 0.15s;
   }
   .filter-btn.active { background: var(--green-dim); color: #fff; border-color: var(--green-dim); }
 
   .line-item {
-    display: flex;
-    align-items: stretch;
+    display: flex; align-items: stretch;
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 5px;
-    overflow: hidden;
+    border-radius: 5px; overflow: hidden;
   }
   .line-color-bar { width: 4px; flex-shrink: 0; }
   .line-body { flex: 1; padding: 10px 12px; min-width: 0; }
@@ -401,7 +461,7 @@
 <header>
   <div class="logo">MC Transit</div>
   <div class="logo-sub">乗り換え案内</div>
-  <div class="header-right">Powered by KAP developer<br>version1.0.3</div>
+  <div class="header-right">Powered by KAP developer<br>version1.0.4</div>
 </header>
 
 <main>
@@ -433,8 +493,7 @@
       </div>
 
       <div class="options-area">
-        <!-- onclickはJS側で一括制御するか、関数にeventを渡すように修正 -->
-        <label class="option-row checked" id="optNether" onclick="toggleOption(event, 'optNether')">
+        <label class="option-row checked" id="optNether" onclick="toggleOption(event,'optNether')">
           <input type="checkbox" checked />
           <div class="option-toggle"></div>
           <div>
@@ -442,12 +501,12 @@
             <div class="option-desc">ネザー内の路線を経路に含める</div>
           </div>
         </label>
-        <label class="option-row" id="optAvoidHeavy" onclick="toggleOption(event, 'optAvoidHeavy')">
+        <label class="option-row" id="optAvoidHeavy" onclick="toggleOption(event,'optAvoidHeavy')">
           <input type="checkbox" />
           <div class="option-toggle"></div>
           <div>
             <div class="option-label">重量駅を避ける <span class="opt-heavy-icon">重量</span></div>
-            <div class="option-desc">FPS下降が懸念される駅を回避する</div>
+            <div class="option-desc">FPS下降が憸念される駅を迂回しない</div>
           </div>
         </label>
       </div>
@@ -478,12 +537,12 @@
    HEAVY_STATIONS
    ============================================== */
 const HEAVY_STATIONS = new Set([
-  "日窯弐", "離婚町", 
+  "日窯弐", "離婚町",
   // "庇野村",
 ]);
 
 /* ==============================================
-   ROUTES DATA (整理済み)
+   ROUTES DATA
    ============================================== */
 const ROUTES = [
   {
@@ -767,7 +826,7 @@ const ROUTES = [
   },
   {
     id: "cm-yabu-l",
-    name: "ChiguraMetro 薖線",
+    name: "ChiguraMetro 藪線",
     type: "普通",
     color: "#F2C233",
     auto: true,
@@ -865,6 +924,24 @@ const ROUTES = [
     stations: ["平原西口", "穴生蛇町", "NIKKE島", "大原城"]
   },
   {
+    id: "lavintychiho-main-l",
+    name: "ラビンティ地方鉄道",
+    type: "普通",
+    color: "#d42020",
+    auto: false,
+    nether: false,
+    stations: ["あーもんどくっきー植林場", "メロマカロナ一時基地", "農園", "ハチョウサホテル裏", "チャリティちゃん像", "河島優佑村"]
+  },
+  {
+    id: "lavintychiho-sub-l",
+    name: "ラビンティ地方鉄道",
+    type: "普通",
+    color: "#d42020",
+    auto: false,
+    nether: false,
+    stations: ["河島優佑村", "さがなきTT"]
+  },
+  {
     id: "kamiya-l",
     name: "神谷鉄道線",
     type: "普通",
@@ -939,8 +1016,35 @@ const ROUTES = [
 
   /* -- ネザー -- */
   {
+    id: "rr-nether-l",
+    name: "RR ネザー線",
+    type: "普通",
+    color: "#26943b",
+    auto: true,
+    nether: true,
+    stations: ["終末要塞", "おなタウン", "エルちゃん邸", "あなきん基地"]
+  },
+  {
+    id: "rr-nether-r",
+    name: "RR ネザー線",
+    type: "快速",
+    color: "#26943b",
+    auto: true,
+    nether: true,
+    stations: ["終末要塞", "おなタウン", "あなきん基地"]
+  },
+  {
+    id: "rr-nether-le",
+    name: "RR ネザー線",
+    type: "普通",
+    color: "#26943b",
+    auto: true,
+    nether: true,
+    stations: ["おなタウン", "あなきん基地"]
+  },
+  {
     id: "nr-n-l",
-    name: "NR ネザー本線(ネザー)",
+    name: "NR ネザー本線",
     type: "普通",
     color: "#9B00FF",
     auto: true,
@@ -949,7 +1053,7 @@ const ROUTES = [
   },
   {
     id: "nr-t-l",
-    name: "NR 月夜見線(ネザー)",
+    name: "NR 月夜見線",
     type: "普通",
     color: "#FDD966",
     auto: true,
@@ -958,7 +1062,7 @@ const ROUTES = [
   },
   {
     id: "nr-t-r",
-    name: "NR 月夜見線(ネザー)",
+    name: "NR 月夜見線",
     type: "快速",
     color: "#FDD966",
     auto: true,
@@ -967,7 +1071,7 @@ const ROUTES = [
   },
   {
     id: "nr-t-le",
-    name: "NR 月夜見線(ネザー)",
+    name: "NR 月夜見線",
     type: "特急",
     color: "#FDD966",
     auto: true,
@@ -976,7 +1080,7 @@ const ROUTES = [
   },
   {
     id: "nr-o-l",
-    name: "NR 大原線(ネザー)",
+    name: "NR 大原線",
     type: "普通",
     color: "#13FE00",
     auto: true,
@@ -985,7 +1089,7 @@ const ROUTES = [
   },
   {
     id: "nr-o-r",
-    name: "NR 大原線(ネザー)",
+    name: "NR 大原線",
     type: "快速",
     color: "#13FE00",
     auto: true,
@@ -994,7 +1098,7 @@ const ROUTES = [
   },
   {
     id: "nr-o-le",
-    name: "NR 大原線(ネザー)",
+    name: "NR 大原線",
     type: "特急",
     color: "#13FE00",
     auto: true,
@@ -1003,7 +1107,7 @@ const ROUTES = [
   },
   {
     id: "nr-s-l",
-    name: "NR 処女森線(ネザー)",
+    name: "NR 処女森線",
     type: "普通",
     color: "#FF0002",
     auto: true,
@@ -1012,7 +1116,7 @@ const ROUTES = [
   },
   {
     id: "nr-r-l",
-    name: "NR 離婚線(ネザー)",
+    name: "NR 離婚線",
     type: "普通",
     color: "#0197A7",
     auto: true,
@@ -1021,25 +1125,25 @@ const ROUTES = [
   },
   {
     id: "nr-y-l",
-    name: "NR 要塞線(ネザー)",
+    name: "NR 要塞線",
     type: "普通",
     color: "#610200",
     auto: true,
     nether: true,
-    stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "新日窯弐(ネザー)", "日窯弐", "珍下森", "古代都市", "御根森", "魂谷", "ウィザスケトラップ"]
+    stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "新日窯弐", "日窯弐", "珍下森", "古代都市", "御根森", "魂谷", "ウィザスケトラップ"]
   },
   {
     id: "new-miu",
-    name: "美海新幹線(ネザー)",
+    name: "美海新幹線",
     type: "特急",
     color: "#B2B2B2",
     auto: false,
     nether: true,
-    stations: ["南立浪", "新日窯弐(ネザー)", "美海ニュータウン", "南きのこ島"]
+    stations: ["南立浪", "新日窯弐", "美海ニュータウン", "南きのこ島"]
   },
   {
     id: "new-wankyo",
-    name: "歪曲新幹線(ネザー)",
+    name: "歪曲新幹線",
     type: "特急",
     color: "#B2B2B2",
     auto: false,
@@ -1048,7 +1152,7 @@ const ROUTES = [
   },
   {
     id: "pl-c-l",
-    name: "PL 真紅線(ネザー)",
+    name: "PL 真紅線",
     type: "普通",
     color: "#FA040F",
     auto: true,
@@ -1057,7 +1161,7 @@ const ROUTES = [
   },
   {
     id: "pl-b-l",
-    name: "PL 花束線(ネザー)",
+    name: "PL 花束線",
     type: "普通",
     color: "#FE02AA",
     auto: true,
@@ -1066,7 +1170,7 @@ const ROUTES = [
   },
   {
     id: "wr-l-l",
-    name: "WR 下層線(ネザー)",
+    name: "WR 下層線",
     type: "普通",
     color: "#FF9900",
     auto: true,
@@ -1075,7 +1179,7 @@ const ROUTES = [
   },
   {
     id: "wr-u-l",
-    name: "WR 上層線(ネザー)",
+    name: "WR 上層線",
     type: "普通",
     color: "#0097A7",
     auto: true,
@@ -1084,7 +1188,7 @@ const ROUTES = [
   },
   {
     id: "wr-usub-l",
-    name: "WR 上層支線(ネザー)",
+    name: "WR 上層支線",
     type: "普通",
     color: "#0097A7",
     auto: true,
@@ -1093,7 +1197,7 @@ const ROUTES = [
   },
   {
     id: "nshr-main-l",
-    name: "NShR 本線(ネザー)",
+    name: "NShR 本線",
     type: "普通",
     color: "#8CC6FF",
     auto: true,
@@ -1102,7 +1206,7 @@ const ROUTES = [
   },
   {
     id: "nshr-main-r",
-    name: "NShR 本線(ネザー)",
+    name: "NShR 本線",
     type: "快速",
     color: "#8CC6FF",
     auto: true,
@@ -1111,7 +1215,7 @@ const ROUTES = [
   },
   {
     id: "nshr-moreexp-l",
-    name: "NShR モレトゥム急行線(ネザー)",
+    name: "NShR モレトゥム急行線",
     type: "普通",
     color: "#8CC6FF",
     auto: true,
@@ -1120,16 +1224,16 @@ const ROUTES = [
   },
   {
     id: "nshr-shako-l",
-    name: "NShR しゃこてぃす線(ネザー)",
+    name: "NShR しゃこてぃす線",
     type: "普通",
     color: "#8CC6FF",
     auto: true,
     nether: true,
-    stations: ["ラビンティ", "(駅名不明1)", "しゃこてぃす一時基地"]
+    stations: ["タトゥーイン", "ピグリン要塞", "マレヴォランス", "ラビンティ", "フェット活動拠点", "しゃこてぃす一時基地"]
   },
   {
     id: "nshr-howsub-l",
-    name: "NShR ホワイトリリー支線(ネザー)",
+    name: "NShR ホワイトリリー支線",
     type: "普通",
     color: "#8CC6FF",
     auto: true,
@@ -1138,7 +1242,7 @@ const ROUTES = [
   },
   {
     id: "knc-buchi-l",
-    name: "Knc 駒岡連絡線(ネザー)",
+    name: "Knc 駮岡連絡線",
     type: "普通",
     color: "#1C89EF",
     auto: true,
@@ -1147,7 +1251,7 @@ const ROUTES = [
   },
   {
     id: "knc-buchi-r",
-    name: "Knc 駒岡連絡線(ネザー)",
+    name: "Knc 駮岡連絡線",
     type: "快速",
     color: "#1C89EF",
     auto: true,
@@ -1156,7 +1260,7 @@ const ROUTES = [
   },
   {
     id: "oer-main-l",
-    name: "OER 本線(ネザー)",
+    name: "大原電鉄 本線",
     type: "普通",
     color: "#ADBDCC",
     auto: false,
@@ -1165,7 +1269,7 @@ const ROUTES = [
   },
   {
     id: "oer-sub-l",
-    name: "OER 嵑道支線(ネザー)",
+    name: "大原電鉄 坑道支線",
     type: "普通",
     color: "#ADBDCC",
     auto: false,
@@ -1212,82 +1316,77 @@ const ROUTES = [
   },
 ];
 
-/* ==============================================
-   ヘルパー関数
-   ============================================== */
+/* ============================================
+   ヘルパー
+   ============================================ */
 const TYPE_CLASS = { "普通": "local", "快速": "rapid", "特急": "express" };
+function typeBadge(t)  { return '<span class="badge type-badge '+(TYPE_CLASS[t]||"local")+'">'+t+'</span>'; }
+function atoBadge(a)   { return a ? '<span class="badge ato-badge on">ATO対応</span>' : '<span class="badge ato-badge off">ATO未対応</span>'; }
+function netherBadge() { return '<span class="badge nether-badge">ネザー</span>'; }
+function heavyMarker(n){ return HEAVY_STATIONS.has(n) ? '<span class="heavy-marker">重量</span>' : ''; }
 
-function typeBadge(type) {
-  return '<span class="badge type-badge ' + (TYPE_CLASS[type] || "local") + '">' + type + '</span>';
-}
-function atoBadge(auto) {
-  return auto
-    ? '<span class="badge ato-badge on">ATO対応</span>'
-    : '<span class="badge ato-badge off">ATO未対応</span>';
-}
-function netherBadge() {
-  return '<span class="badge nether-badge">ネザー</span>';
-}
-function heavyMarker(name) {
-  return HEAVY_STATIONS.has(name) ? '<span class="heavy-marker">重量</span>' : '';
-}
-
-/* ==============================================
-   UI 操作（トグル修正含む）
-   ============================================== */
+/* ============================================
+   トグル
+   ============================================ */
 function toggleOption(event, id) {
   const label = document.getElementById(id);
-  const checkbox = label.querySelector('input[type="checkbox"]');
-  
-  // ラベルクリック時にinputの状態と同期させる
-  // labelをクリックすると自動でcheckboxもクリックされるため、
-  // checkboxの状態を基準にクラスを付け替える
-  setTimeout(() => {
-    if (checkbox.checked) {
-      label.classList.add('checked');
-    } else {
-      label.classList.remove('checked');
-    }
+  const cb = label.querySelector('input[type="checkbox"]');
+  setTimeout(function() {
+    cb.checked ? label.classList.add('checked') : label.classList.remove('checked');
   }, 10);
 }
 
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) =>
-    t.classList.toggle('active', ['search', 'lines'][i] === name));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
+/* ============================================
+   途中駅展開ボタン
+   ============================================ */
+function toggleStops(segIdx) {
+  var btn   = document.getElementById('expand-btn-' + segIdx);
+  var stops = document.getElementById('intermediate-' + segIdx);
+  var isOpen = stops.classList.contains('open');
+  if (isOpen) {
+    stops.classList.remove('open');
+    btn.classList.remove('open');
+    btn.textContent = '▼'; // v
+    btn.title = '途中駅を表示';
+  } else {
+    stops.classList.add('open');
+    btn.classList.add('open');
+    btn.textContent = '▲'; // ^
+    btn.title = '途中駅を間じる';
+  }
 }
 
-/* グラフ構築・検索ロジックなどはそのまま（正常動作確認済み） */
+/* ============================================
+   グラフ・検索
+   ============================================ */
 const ALL_STATIONS = [...new Set(ROUTES.flatMap(r => r.stations))].filter(s => s !== '').sort();
 let fromStation = '', toStation = '';
 let linesFilter = 'all';
 
 function getFilteredRoutes() {
-  const useNether = document.getElementById('optNether').classList.contains('checked');
-  const avoidHeavy = document.getElementById('optAvoidHeavy').classList.contains('checked');
-  
-  return ROUTES.filter(r => {
-    if (r.stations.some(s => s === '')) return false;
+  var useNether   = document.getElementById('optNether').classList.contains('checked');
+  var avoidHeavy  = document.getElementById('optAvoidHeavy').classList.contains('checked');
+  return ROUTES.filter(function(r) {
+    if (r.stations.some(function(s){ return s === ''; })) return false;
     if (!useNether && r.nether) return false;
     return true;
-  }).map(r => {
+  }).map(function(r) {
     if (!avoidHeavy) return r;
-    const filtered = r.stations.filter(s => !HEAVY_STATIONS.has(s));
+    var filtered = r.stations.filter(function(s){ return !HEAVY_STATIONS.has(s); });
     if (filtered.length < 2) return null;
     return Object.assign({}, r, { stations: filtered });
   }).filter(Boolean);
 }
 
 function buildGraph(routes) {
-  const ALL = [...new Set(routes.flatMap(r => r.stations))];
-  const graph = {};
-  ALL.forEach(s => { graph[s] = []; });
-  routes.forEach(route => {
-    for (let i = 0; i < route.stations.length - 1; i++) {
-      const a = route.stations[i], b = route.stations[i + 1];
-      graph[a].push({ to: b, route });
-      graph[b].push({ to: a, route });
+  var ALL = [...new Set(routes.flatMap(function(r){ return r.stations; }))];
+  var graph = {};
+  ALL.forEach(function(s){ graph[s] = []; });
+  routes.forEach(function(route) {
+    for (var i = 0; i < route.stations.length - 1; i++) {
+      var a = route.stations[i], b = route.stations[i+1];
+      graph[a].push({ to: b, route: route });
+      graph[b].push({ to: a, route: route });
     }
   });
   return graph;
@@ -1295,23 +1394,24 @@ function buildGraph(routes) {
 
 function findRoute(graph, from, to) {
   if (from === to) return null;
-  const queue = [{ station: from, currentRoute: null, transfers: 0, path: [] }];
-  const visited = new Map();
+  var queue = [{ station: from, currentRoute: null, transfers: 0, path: [] }];
+  var visited = new Map();
   while (queue.length) {
-    queue.sort((a, b) => a.transfers - b.transfers);
-    const cur = queue.shift();
-    const key = cur.station + '|' + (cur.currentRoute ? cur.currentRoute.id : '');
+    queue.sort(function(a,b){ return a.transfers - b.transfers; });
+    var cur = queue.shift();
+    var key = cur.station + '|' + (cur.currentRoute ? cur.currentRoute.id : '');
     if (visited.has(key) && visited.get(key) <= cur.transfers) continue;
     visited.set(key, cur.transfers);
     if (cur.station === to) return cur.path;
     if (!graph[cur.station]) continue;
-    for (const edge of graph[cur.station]) {
-      const isTransfer = cur.currentRoute && cur.currentRoute.id !== edge.route.id;
+    for (var i = 0; i < graph[cur.station].length; i++) {
+      var edge = graph[cur.station][i];
+      var isTransfer = cur.currentRoute && cur.currentRoute.id !== edge.route.id;
       queue.push({
         station: edge.to,
         currentRoute: edge.route,
         transfers: cur.transfers + (isTransfer ? 1 : 0),
-        path: [...cur.path, { from: cur.station, to: edge.to, route: edge.route }]
+        path: cur.path.concat([{ from: cur.station, to: edge.to, route: edge.route }])
       });
     }
   }
@@ -1320,9 +1420,9 @@ function findRoute(graph, from, to) {
 
 function pathToSegments(path) {
   if (!path || !path.length) return [];
-  const segs = [];
-  let seg = { route: path[0].route, stations: [path[0].from, path[0].to] };
-  for (let i = 1; i < path.length; i++) {
+  var segs = [];
+  var seg = { route: path[0].route, stations: [path[0].from, path[0].to] };
+  for (var i = 1; i < path.length; i++) {
     if (path[i].route.id === seg.route.id) {
       seg.stations.push(path[i].to);
     } else {
@@ -1334,26 +1434,33 @@ function pathToSegments(path) {
   return segs;
 }
 
+/* ============================================
+   UI
+   ============================================ */
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t, i){
+    t.classList.toggle('active', ['search','lines'][i] === name);
+  });
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
 function onInput(which) { showDropdown(which); }
 
 function showDropdown(which) {
   closeAllDropdowns();
-  const useNether = document.getElementById('optNether').classList.contains('checked');
-  const input    = document.getElementById(which + 'Input');
-  const dropdown = document.getElementById(which + 'Dropdown');
-  const q = input.value.trim();
-
-  const availableStations = useNether
-    ? ALL_STATIONS
-    : ALL_STATIONS.filter(s => ROUTES.some(r => !r.nether && r.stations.includes(s)));
-
-  const filtered = q ? availableStations.filter(s => s.includes(q)) : availableStations;
-  dropdown.innerHTML = filtered.map(s => {
-    const dots = ROUTES.filter(r => r.stations.includes(s)).slice(0, 4)
-      .map(r => '<span style="width:8px;height:8px;border-radius:50%;background:' + r.color + ';display:inline-block;flex-shrink:0"></span>')
-      .join('');
-    const safe = s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    return '<div class="dropdown-item" onclick="selectStation(\'' + which + '\',\'' + safe + '\')">' + dots + '<span>' + s + '</span></div>';
+  var useNether = document.getElementById('optNether').classList.contains('checked');
+  var input    = document.getElementById(which + 'Input');
+  var dropdown = document.getElementById(which + 'Dropdown');
+  var q = input.value.trim();
+  var avail = useNether ? ALL_STATIONS
+    : ALL_STATIONS.filter(function(s){ return ROUTES.some(function(r){ return !r.nether && r.stations.includes(s); }); });
+  var filtered = q ? avail.filter(function(s){ return s.includes(q); }) : avail;
+  dropdown.innerHTML = filtered.map(function(s) {
+    var dots = ROUTES.filter(function(r){ return r.stations.includes(s); }).slice(0,4)
+      .map(function(r){ return '<span style="width:8px;height:8px;border-radius:50%;background:'+r.color+';display:inline-block;flex-shrink:0"></span>'; }).join('');
+    var safe = s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="dropdown-item" onclick="selectStation(\''+which+'\',\''+safe+'\')">' + dots + '<span>' + s + '</span></div>';
   }).join('');
   if (filtered.length) dropdown.classList.add('open');
 }
@@ -1365,92 +1472,149 @@ function selectStation(which, name) {
 }
 
 function closeAllDropdowns() {
-  document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.dropdown').forEach(function(d){ d.classList.remove('open'); });
 }
 
-document.addEventListener('click', e => {
+document.addEventListener('click', function(e) {
   if (!e.target.closest('.station-input-wrap')) closeAllDropdowns();
 });
 
 function swapStations() {
-  const fromVal = document.getElementById('fromInput').value;
-  const toVal = document.getElementById('toInput').value;
-  document.getElementById('fromInput').value = toVal;
-  document.getElementById('toInput').value = fromVal;
+  var fv = document.getElementById('fromInput').value;
+  var tv = document.getElementById('toInput').value;
+  document.getElementById('fromInput').value = tv;
+  document.getElementById('toInput').value   = fv;
 }
 
+/* ============================================
+   経路検索 - HTML生成
+   ============================================ */
 function searchRoute() {
-  const from = document.getElementById('fromInput').value.trim();
-  const to = document.getElementById('toInput').value.trim();
-  const resultDiv = document.getElementById('result');
-  const content   = document.getElementById('resultContent');
+  var from = document.getElementById('fromInput').value.trim();
+  var to   = document.getElementById('toInput').value.trim();
+  var resultDiv = document.getElementById('result');
+  var content   = document.getElementById('resultContent');
   resultDiv.classList.add('visible');
 
-  if (!from || !to) {
-    content.innerHTML = '<div class="no-route">出発駅と到着駅を入力してください</div>'; return;
-  }
-  if (!ALL_STATIONS.includes(from) || !ALL_STATIONS.includes(to)) {
-    content.innerHTML = '<div class="no-route">駅名が正しくありません</div>'; return;
-  }
-  if (from === to) {
-    content.innerHTML = '<div class="no-route">出発駅と到着駅が同じです</div>'; return;
-  }
+  if (!from || !to) { content.innerHTML = '<div class="no-route">出発駅と到着駅を入力してください</div>'; return; }
+  if (!ALL_STATIONS.includes(from) || !ALL_STATIONS.includes(to)) { content.innerHTML = '<div class="no-route">駅名が正しくありません</div>'; return; }
+  if (from === to) { content.innerHTML = '<div class="no-route">出発駅と到着駅が同じです</div>'; return; }
 
-  const filteredRoutes = getFilteredRoutes();
-  const graph = buildGraph(filteredRoutes);
+  var filteredRoutes = getFilteredRoutes();
+  var graph = buildGraph(filteredRoutes);
 
   if (!graph[from] || !graph[to]) {
     content.innerHTML = '<div class="no-route">現在の設定では経路が見つかりません。<br>ネザー路線の使用を確認してください。</div>'; return;
   }
 
-  const path = findRoute(graph, from, to);
-  if (!path) {
-    content.innerHTML = '<div class="no-route">経路が見つかりませんでした。</div>'; return;
-  }
+  var path = findRoute(graph, from, to);
+  if (!path) { content.innerHTML = '<div class="no-route">経路が見つかりませんでした。</div>'; return; }
 
-  const segs = pathToSegments(path);
-  const transfers = segs.length - 1;
-  const usesNether = segs.some(s => s.route.nether);
+  var segs = pathToSegments(path);
+  var transfers = segs.length - 1;
+  var usesNether = segs.some(function(s){ return s.route.nether; });
 
-  let html = '<div class="result-meta">'
+  var html = '<div class="result-meta">'
     + '<div class="result-route-label">' + from + ' - ' + to + '</div>'
     + '<div class="result-badges">'
     + '<span class="transfer-badge">乗り換え ' + transfers + ' 回</span>'
     + (usesNether ? '<span class="nether-used-badge">ネザー経由</span>' : '')
     + '</div></div><div class="journey">';
 
+  /* ---- 出発駅 ---- */
+  var firstSeg = segs[0];
+  var firstMids = firstSeg.stations.slice(1, firstSeg.stations.length - 1); // 途中駅配列
+  var firstHasMids = firstMids.length > 0;
+
+  html += '<div class="step">'
+    /* タイムライン列 */
+    + '<div class="step-timeline">'
+    +   '<div class="step-dot start"></div>'
+    +   '<div class="step-connector-wrap">'
+    +     '<div class="connector-line" style="background:' + firstSeg.route.color + '55"></div>'
+    /* 途中駅展開ボタン（途中駅が1以上あるときのみ） */
+    + (firstHasMids
+        ? '<button class="expand-btn" id="expand-btn-0" onclick="toggleStops(0)" title="途中駅を表示">▼</button>'
+          + '<div class="intermediate-stops" id="intermediate-0">'
+          + firstMids.map(function(s) {
+              return '<div class="mid-stop">'
+                + '<div class="mid-stop-timeline">'
+                +   '<div class="mid-connector-top" style="background:' + firstSeg.route.color + '55"></div>'
+                +   '<div class="mid-dot" style="border-color:' + firstSeg.route.color + '88;background:var(--bg)"></div>'
+                +   '<div class="mid-connector-bottom" style="background:' + firstSeg.route.color + '55"></div>'
+                + '</div>'
+                + '</div>'
+                /* 駅名は定位が難しいので複合レイアウトから除外、途中駅リストは stepの内側(body列)で次に描画 */
+                ;
+            }).join('')
+          + '</div>'
+        : ''
+      )
+    +     '<div class="connector-line" style="background:' + firstSeg.route.color + '55"></div>'
+    +   '</div>'
+    + '</div>'
+    /* ボディ列 */
+    + '<div class="step-body">'
+    +   '<div class="step-station">' + firstSeg.stations[0] + heavyMarker(firstSeg.stations[0]) + '</div>'
+    +   '<div class="step-station-sub">出発</div>'
+    +   '<div class="ride-block" style="border-left-color:' + firstSeg.route.color + '">'
+    +     '<div class="ride-name" style="color:' + firstSeg.route.color + '">' + firstSeg.route.name + '</div>'
+    +     typeBadge(firstSeg.route.type)
+    +     (firstSeg.route.nether ? netherBadge() : '')
+    +     '<div class="ride-stops">' + (firstSeg.stations.length-1) + '駅</div>'
+    +     atoBadge(firstSeg.route.auto)
+    +   '</div>';
+
+  /* 途中駅名一覧（body側に表示、タイムライン側のドットと連動） */
+  if (firstHasMids) {
+    html += '<div id="intermediate-body-0" style="display:none;margin-top:6px;padding-left:2px">'
+      + firstMids.map(function(s){
+          return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-left:2px solid ' + firstSeg.route.color + '44;padding-left:8px">'
+            + '<div style="width:6px;height:6px;border-radius:50%;border:1.5px solid ' + firstSeg.route.color + ';background:var(--bg);flex-shrink:0"></div>'
+            + '<span style="font-size:0.8rem;color:var(--sub)">' + s + heavyMarker(s) + '</span>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+  html += '</div></div>'; /* /step-body /step */
+
+  /* ---- 乗り換え・到着 ---- */
   segs.forEach(function(seg, idx) {
-    var isFirst = idx === 0;
     var isLast  = idx === segs.length - 1;
-    var stops   = seg.stations.length - 1;
     var nextSeg = segs[idx + 1];
-
-    if (isFirst) {
-      html += '<div class="step">'
-        + '<div class="step-timeline">'
-        +   '<div class="step-dot start"></div>'
-        +   '<div class="step-connector" style="background:' + seg.route.color + '55"></div>'
-        + '</div>'
-        + '<div class="step-body">'
-        +   '<div class="step-station">' + seg.stations[0] + heavyMarker(seg.stations[0]) + '</div>'
-        +   '<div class="step-station-sub">出発</div>'
-        +   '<div class="ride-block" style="border-left-color:' + seg.route.color + '">'
-        +     '<div class="ride-name" style="color:' + seg.route.color + '">' + seg.route.name + '</div>'
-        +     typeBadge(seg.route.type)
-        +     (seg.route.nether ? netherBadge() : '')
-        +     '<div class="ride-stops">' + stops + '駅</div>'
-        +     atoBadge(seg.route.auto)
-        +   '</div>'
-        + '</div></div>';
-    }
-
     var arrStation = seg.stations[seg.stations.length - 1];
     var dotClass   = isLast ? 'end' : 'via';
+
+    /* 次セグメントの途中駅 */
+    var nextMids    = (!isLast) ? nextSeg.stations.slice(1, nextSeg.stations.length - 1) : [];
+    var nextHasMids = nextMids.length > 0;
+    var btnIdx      = idx + 1; /* 展開ボタンID (segインデックス+1) */
 
     html += '<div class="step">'
       + '<div class="step-timeline">'
       +   '<div class="step-dot ' + dotClass + '"></div>'
-      +   (!isLast ? '<div class="step-connector" style="background:' + nextSeg.route.color + '55"></div>' : '')
+      +   (!isLast
+            ? '<div class="step-connector-wrap">'
+              +   '<div class="connector-line" style="background:' + nextSeg.route.color + '55"></div>'
+              + (nextHasMids
+                  ? '<button class="expand-btn" id="expand-btn-' + btnIdx + '" onclick="toggleStops(' + btnIdx + ')" title="途中駅を表示">▼</button>'
+                    + '<div class="intermediate-stops" id="intermediate-' + btnIdx + '">'
+                    + nextMids.map(function(s){
+                        return '<div class="mid-stop">'
+                          + '<div class="mid-stop-timeline">'
+                          +   '<div class="mid-connector-top" style="background:' + nextSeg.route.color + '55"></div>'
+                          +   '<div class="mid-dot" style="border-color:' + nextSeg.route.color + '88;background:var(--bg)"></div>'
+                          +   '<div class="mid-connector-bottom" style="background:' + nextSeg.route.color + '55"></div>'
+                          + '</div>'
+                          + '</div>';
+                      }).join('')
+                    + '</div>'
+                  : ''
+                )
+              + '<div class="connector-line" style="background:' + nextSeg.route.color + '55"></div>'
+              + '</div>'
+            : ''
+          )
       + '</div>'
       + '<div class="step-body">'
       +   '<div class="step-station">' + arrStation + heavyMarker(arrStation) + '</div>'
@@ -1461,49 +1625,83 @@ function searchRoute() {
         +   '<div class="ride-name" style="color:' + nextSeg.route.color + '">' + nextSeg.route.name + '</div>'
         +   typeBadge(nextSeg.route.type)
         +   (nextSeg.route.nether ? netherBadge() : '')
-        +   '<div class="ride-stops">' + (nextSeg.stations.length - 1) + '駅</div>'
+        +   '<div class="ride-stops">' + (nextSeg.stations.length-1) + '駅</div>'
         +   atoBadge(nextSeg.route.auto)
         + '</div>';
+      /* 途中駅名一覧 (body側) */
+      if (nextHasMids) {
+        html += '<div id="intermediate-body-' + btnIdx + '" style="display:none;margin-top:6px;padding-left:2px">'
+          + nextMids.map(function(s){
+              return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-left:2px solid ' + nextSeg.route.color + '44;padding-left:8px">'
+                + '<div style="width:6px;height:6px;border-radius:50%;border:1.5px solid ' + nextSeg.route.color + ';background:var(--bg);flex-shrink:0"></div>'
+                + '<span style="font-size:0.8rem;color:var(--sub)">' + s + heavyMarker(s) + '</span>'
+                + '</div>';
+            }).join('')
+          + '</div>';
+      }
     }
-    html += '</div></div>';
+    html += '</div></div>'; /* /step-body /step */
   });
 
-  html += '</div>';
+  html += '</div>'; /* /journey */
   content.innerHTML = html;
   resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+/* ---- toggleStops をタイムライン側とbody側を同時制御 ---- */
+function toggleStops(idx) {
+  var btn   = document.getElementById('expand-btn-'   + idx);
+  var tl    = document.getElementById('intermediate-' + idx);        /* タイムライン側ドット */
+  var body  = document.getElementById('intermediate-body-' + idx);   /* body側駅名 */
+  var isOpen = tl.classList.contains('open');
+  if (isOpen) {
+    tl.classList.remove('open');
+    btn.classList.remove('open');
+    btn.textContent = '▼';
+    btn.title = '途中駅を表示';
+    if (body) body.style.display = 'none';
+  } else {
+    tl.classList.add('open');
+    btn.classList.add('open');
+    btn.textContent = '▲';
+    btn.title = '途中駅を間じる';
+    if (body) body.style.display = 'block';
+  }
+}
+
+/* ============================================
+   路線一覧
+   ============================================ */
 function setLineFilter(f) {
   linesFilter = f;
-  document.querySelectorAll('.filter-btn').forEach((b, i) =>
-    b.classList.toggle('active', ['all', 'overworld', 'nether'][i] === f));
+  document.querySelectorAll('.filter-btn').forEach(function(b, i){
+    b.classList.toggle('active', ['all','overworld','nether'][i] === f);
+  });
   renderLines();
 }
 
 function renderLines() {
-  const list = ROUTES.filter(r => {
-    if (r.stations.some(s => s === '')) return false;
+  var list = ROUTES.filter(function(r) {
+    if (r.stations.some(function(s){ return s === ''; })) return false;
     if (linesFilter === 'overworld') return !r.nether;
     if (linesFilter === 'nether')    return r.nether;
     return true;
   });
-  document.getElementById('linesList').innerHTML = list.map(r =>
-    '<div class="line-item">'
-    + '<div class="line-color-bar" style="background:' + r.color + '"></div>'
-    + '<div class="line-body">'
-    +   '<div class="line-name" style="color:' + r.color + '">' + r.name + ' ' + typeBadge(r.type) + '</div>'
-    +   '<div class="line-stations-text">' + r.stations.join(' > ') + '</div>'
-    + '</div>'
-    + '<div class="line-right">'
-    +   (r.nether ? netherBadge() : '')
-    +   atoBadge(r.auto)
-    + '</div>'
-    + '</div>'
-  ).join('');
+  document.getElementById('linesList').innerHTML = list.map(function(r) {
+    return '<div class="line-item">'
+      + '<div class="line-color-bar" style="background:' + r.color + '"></div>'
+      + '<div class="line-body">'
+      +   '<div class="line-name" style="color:' + r.color + '">' + r.name + ' ' + typeBadge(r.type) + '</div>'
+      +   '<div class="line-stations-text">' + r.stations.join(' &gt; ') + '</div>'
+      + '</div>'
+      + '<div class="line-right">'
+      +   (r.nether ? netherBadge() : '')
+      +   atoBadge(r.auto)
+      + '</div></div>';
+  }).join('');
 }
 
 renderLines();
 </script>
-
 </body>
 </html>
