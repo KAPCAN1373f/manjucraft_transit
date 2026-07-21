@@ -461,7 +461,7 @@
 <header>
   <div class="logo">MC Transit</div>
   <div class="logo-sub">乗り換え案内</div>
-  <div class="header-right">Powered by KAP developer<br>version1.0.4</div>
+  <div class="header-right">Powered by KAP developer<br>version1.0.5</div>
 </header>
 
 <main>
@@ -506,7 +506,7 @@
           <div class="option-toggle"></div>
           <div>
             <div class="option-label">重量駅を避ける <span class="opt-heavy-icon">重量</span></div>
-            <div class="option-desc">FPS下降が憸念される駅を迂回しない</div>
+            <div class="option-desc">FPS下降が懸念される駅を迂回する(ベータ)</div>
           </div>
         </label>
       </div>
@@ -654,6 +654,15 @@ const ROUTES = [
     stations: ["蝶野町", "蝶野村", "月夜見", "渡見", "中洲", "ハオチン", "三日月島", "竹野町", "千蔵", "桜ヶ浜", "美海ニュータウン"]
   },
   {
+    id: "21-sekkai-l",
+    name: "弐壱鐵道 千蔵石灰支線",
+    type: "普通",
+    color: "#EDC2EB",
+    auto: true,
+    nether: false,
+    stations: ["千蔵", "製砂工場"]
+  },
+  {
     id: "omutsu-l",
     name: "御睦鉄道線",
     type: "普通",
@@ -762,6 +771,15 @@ const ROUTES = [
     stations: ["久保山", "ELハーバー(印景島)", "新木", "子木", "海又木", "NIKKE島"]
   },
   {
+    id: "hwr-sl-l",
+    name: "HWR 周遊りんかい線",
+    type: "普通",
+    color: "#FFBFD2",
+    auto: false,
+    nether: false,
+    stations: ["ヘメロカリス特別区", "ヘメロカリス旧特別区", "グロリオサ島", "ブレティラ島", "プロテア湖"]
+  },
+  {
     id: "hsr-main-l",
     name: "へメロカリス特別区鉄道 本線",
     type: "普通",
@@ -789,22 +807,40 @@ const ROUTES = [
     stations: ["アスポデロス低空庭園", "桜村"]
   },
   {
-    id: "sws-main",
+    id: "sws-main-l",
     name: "特別区営地下鉄 本線",
     type: "普通",
     color: "#FE4446",
     auto: true,
     nether: false,
-    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "ツリーハウス", "開発拠点", "ヘメロカリス", "月夜見"]
+    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "ツリーハウス", "ヘメロカリス", "月夜見"]
   },
   {
-    id: "sws-junkan",
+    id: "sws-main-r",
+    name: "特別区営地下鉄 本線",
+    type: "快速",
+    color: "#FE4446",
+    auto: true,
+    nether: false,
+    stations: ["蝶野町", "蝶野トラップタワー", "ツリーハウス", "ヘメロカリス", "月夜見"]
+  },
+  {
+    id: "sws-junkan-l",
     name: "特別区営地下鉄 循環線",
     type: "普通",
     color: "#F2C235",
     auto: true,
     nether: false,
-    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "舵マンション", "竹野特別区(竹野RLヘメロカリス)", "NTR特別区", "折鶴倉庫", "交易所", "ヘメロカリス特別区", "開発拠点", "ツリーハウス"]
+    stations: ["蝶野町", "新蝶野", "熱帯雨林", "蝶野トラップタワー", "舵マンション", "折鶴倉庫", "交易所", "kaji大農園", "ヘメロカリス特別区", "odenタワー", "ツリーハウス"]
+  },
+  {
+    id: "sws-junkan-r",
+    name: "特別区営地下鉄 循環線",
+    type: "快速",
+    color: "#F2C235",
+    auto: true,
+    nether: false,
+    stations: ["蝶野町", "蝶野トラップタワー", "舵マンション", "折鶴倉庫", "交易所", "ヘメロカリス特別区", "odenタワー", "ツリーハウス"]
   },
   {
     id: "sws-under",
@@ -813,7 +849,7 @@ const ROUTES = [
     color: "#5C6565",
     auto: true,
     nether: false,
-    stations: ["ヘメロカリス", "廃坑", "帯水層", "kaji地下帝国"]
+    stations: ["ヘメロカリス", "ジオード", "廃坑", "帯水層", "kaji地下帝国"]
   },
   {
     id: "sws-sakura",
@@ -957,7 +993,7 @@ const ROUTES = [
     color: "#79F23C",
     auto: false,
     nether: false,
-    stations: ["下神谷村", "竹野村", "三日月島", "アチャラカ", "竹野特別区(竹野RLヘメロカリス)"]
+    stations: ["下神谷村", "竹野村", "三日月島", "アチャラカ", "ヘメロカリス"]
   },
   {
     id: "nr-p-l",
@@ -1127,10 +1163,10 @@ const ROUTES = [
     id: "nr-y-l",
     name: "NR 要塞線",
     type: "普通",
-    color: "#610200",
+    color: "#A51310",
     auto: true,
     nether: true,
-    stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "新日窯弐", "日窯弐", "珍下森", "古代都市", "御根森", "魂谷", "ウィザスケトラップ"]
+    stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "新日窯弐", "日窯弐", "珍下森", "古代都市", "西口セメント製造所前", "御根森", "魂谷", "ウィザスケトラップ"]
   },
   {
     id: "new-miu",
