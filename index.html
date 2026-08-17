@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -18,6 +18,7 @@
     --text:      #e0e0e0;
     --sub:       #888;
     --danger:    #f28b2f;
+    --through:   #4fc3f7;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -256,14 +257,18 @@
     background: rgba(155,0,255,0.15); color: #ce93d8;
     border: 1px solid rgba(155,0,255,0.3); white-space: nowrap;
   }
+  .direct-used-badge {
+    font-size: 0.72rem; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+    background: rgba(79,195,247,0.15); color: var(--through);
+    border: 1px solid rgba(79,195,247,0.35); white-space: nowrap;
+  }
 
   /* ---- Journey timeline ---- */
   .journey { display: flex; flex-direction: column; }
 
-  /* 1ステップ = タイムライン列 + ボディ列 */
   .step { display: flex; gap: 12px; }
 
-  /* タイムライン列 */
   .step-timeline {
     display: flex;
     flex-direction: column;
@@ -273,7 +278,6 @@
     position: relative;
   }
 
-  /* 主要駅ドット */
   .step-dot {
     width: 13px; height: 13px;
     border-radius: 50%;
@@ -283,11 +287,15 @@
     margin-top: 5px;
     z-index: 1;
   }
-  .step-dot.start { border-color: var(--green); background: var(--green); }
-  .step-dot.end   { border-color: #e0e0e0; background: #e0e0e0; }
-  .step-dot.via   { border-color: #e0e0e0; background: var(--surface); }
+  .step-dot.start   { border-color: var(--green); background: var(--green); }
+  .step-dot.end     { border-color: #e0e0e0; background: #e0e0e0; }
+  .step-dot.via     { border-color: #e0e0e0; background: var(--surface); }
+  .step-dot.through {
+    border-color: var(--through);
+    background: var(--through);
+    width: 11px; height: 11px;
+  }
 
-  /* タイムライン縦線 + 途中駅展開ボタン を包むラッパー */
   .step-connector-wrap {
     flex: 1;
     display: flex;
@@ -297,14 +305,12 @@
     position: relative;
   }
 
-  /* 縦線（上部分 / 下部分に分割して途中にボタンを挟む） */
   .connector-line {
     width: 2px;
     flex: 1;
     min-height: 6px;
   }
 
-  /* 途中駅展開ボタン */
   .expand-btn {
     width: 18px; height: 18px;
     border-radius: 50%;
@@ -318,27 +324,20 @@
     transition: border-color 0.15s, color 0.15s, background 0.15s;
     line-height: 1;
     padding: 0;
-    /* ボタン自体は 0 の flex 成長 -- 上下の line が残りを分け合う */
     margin: 3px 0;
   }
   .expand-btn:hover { border-color: var(--green); color: var(--green); background: var(--surface); }
   .expand-btn.open  { border-color: var(--green); color: var(--green); background: rgba(76,175,80,0.08); }
 
-  /* 途中駅リスト（アコーディオン） */
   .intermediate-stops {
-    display: none;          /* 初期非表示 */
+    display: none;
     flex-direction: column;
     align-items: stretch;
     width: 100%;
   }
   .intermediate-stops.open { display: flex; }
 
-  /* 途中駅 1 行 = タイムライン小ドット + 駅名 */
-  .mid-stop {
-    display: flex;
-    align-items: center;
-    gap: 0;                  /* タイムライン幅は親の幅で揃える */
-  }
+  .mid-stop { display: flex; align-items: center; gap: 0; }
   .mid-stop-timeline {
     display: flex;
     flex-direction: column;
@@ -356,10 +355,10 @@
   }
   .mid-connector-bottom { width: 2px; height: 6px; }
 
-  /* ---- step body ---- */
   .step-body { flex: 1; padding-bottom: 20px; }
   .step-station { font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
   .step-station-sub { font-size: 0.73rem; color: var(--sub); margin-bottom: 6px; }
+  .step-station-sub.through-text { color: var(--through); font-weight: 700; }
 
   .heavy-marker {
     display: inline-block;
@@ -386,21 +385,6 @@
   .ride-name { font-size: 0.88rem; font-weight: 700; flex: 1; min-width: 60px; }
   .ride-stops { font-size: 0.75rem; color: var(--sub); white-space: nowrap; }
 
-  /* 途中駅テキスト行（step-body 側） */
-  .mid-stop-body {
-    flex: 1;
-    padding: 0 0 0 8px;
-    /* 高さは mid-stop-timeline に合わせる */
-    display: flex;
-    align-items: center;
-  }
-  .mid-stop-name {
-    font-size: 0.8rem;
-    color: var(--sub);
-    line-height: 1;
-  }
-
-  /* badges */
   .badge {
     font-size: 0.65rem; font-weight: 700;
     padding: 2px 6px; border-radius: 3px;
@@ -416,7 +400,6 @@
 
   .no-route { text-align: center; padding: 28px 0; color: var(--sub); font-size: 0.9rem; line-height: 1.8; }
 
-  /* Lines list */
   .lines-list { display: flex; flex-direction: column; gap: 8px; }
   .lines-filter { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
   .filter-btn {
@@ -461,7 +444,7 @@
 <header>
   <div class="logo">MC Transit</div>
   <div class="logo-sub">乗り換え案内</div>
-  <div class="header-right">Powered by KAP developer<br>version1.0.5</div>
+  <div class="header-right">Powered by KAP developer<br>version1.0.7</div>
 </header>
 
 <main>
@@ -542,7 +525,80 @@ const HEAVY_STATIONS = new Set([
 ]);
 
 /* ==============================================
+   THROUGH_SERVICES（直通運転）
+
+   2つの路線(id)が直通運転している場合、つまり乗客が同じ列車に
+   乗ったまま乗り換えなしで他方の路線区間へ進める場合に、ここへ
+   ペアを追加してください。
+
+   書式:  [路線ID1, 路線ID2]
+   ・順不同（どちらを先に書いてもOK）
+   ・2つの路線は接続駅（片方の終点駅ともう片方の起点駅が一致する駅）
+     を共有している必要があります
+   ・種別（普通/快速/特急）ごとに直通が分かれる場合は、種別ごとに
+     IDペアを別々に登録してください（例: 普通同士、快速同士）
+
+   ---- 登録例 ----
+   「NR 月夜見線(普通)」と「Knc 駮岡連絡線(普通)」が
+   「日窯弐」駅で直通運転している場合:
+
+     const THROUGH_SERVICES = [
+       ["nr-t-l", "knc-buchi-l"],   // NR月夜見線(普通) <-> Knc駮岡連絡線(普通)
+       ["nr-t-r", "knc-buchi-r"],   // NR月夜見線(快速) <-> Knc駮岡連絡線(快速)
+     ];
+
+   3路線以上が連続して直通する場合（A<->B<->C）は、
+   ペアを2つに分けて書けばOKです:
+     ["routeA-id", "routeB-id"],
+     ["routeB-id", "routeC-id"],
+   ============================================== */
+const THROUGH_SERVICES = [
+  ["nr-t-l", "knc-buchi-l"],
+  ["nr-t-l", "knc-buchi-r"],
+  ["nr-t-r", "knc-buchi-l"],
+  ["nr-t-r", "knc-buchi-r"],
+  ["nr-y-l", "oer-main-l"],
+  ["nr-y-r", "oer-main-l"],
+  ["nr-y-le", "oer-main-l"],
+  ["tatsumet-kirishima-l", "sws-main-l"],
+  ["tatsumet-kirishima-l", "sws-main-r"],
+  ["tatsumet-kirishima-r", "sws-main-l"],
+  ["tatsumet-kirishima-r", "sws-main-r"],
+  ["tatsumet-kirishima-le", "sws-main-l"],
+  ["tatsumet-kirishima-le", "sws-main-r"],
+  ["tatsumet-kirishima-l", "kc-giken-r"],
+  ["tatsumet-kirishima-l", "kc-giken-le"],
+  ["tatsumet-kirishima-r", "kc-giken-r"],
+  ["tatsumet-kirishima-r", "kc-giken-le"],
+  ["tatsumet-kirishima-le", "kc-giken-r"],
+  ["tatsumet-kirishima-le", "kc-giken-le"],
+  ["kinoden-rito-l", "knk-main-l"],
+  ["kinoden-rito-r", "knk-main-l"],
+  ["kinoden-rito-le", "knk-main-l"],
+  ["rr-main-l", "snr-end-l"],
+  ["21-chigura-l", "mr-moosh-l"],
+  ["knc-buchi-l", "nshr-oshima-l"],
+  ["knc-buchi-r", "nshr-oshima-l"],
+  ["knc-buchi-le", "nshr-oshima-l"],
+  ["hsr-sakura-l", "sws-sakura"],
+  ["kamiya-l", "takenorl-l"],
+];
+
+/* ==============================================
    ROUTES DATA
+
+   1路線(1種別)につき1オブジェクト。以下をコピーして書き換えると
+   登録しやすいです。
+
+   {
+     id: "一意のID",
+     name: "路線名",
+     type: "普通" or "快速" or "特急",
+     color: "#RRGGBB",
+     auto: true or false,     // ATO対応か
+     nether: true or false,   // ネザー内路線か
+     stations: ["駅1", "駅2", "駅3"]
+   },
    ============================================== */
 const ROUTES = [
   {
@@ -552,7 +608,7 @@ const ROUTES = [
     color: "#FE0302",
     auto: true,
     nether: false,
-    stations: ["茅野村", "第二拠点", "卵森", "日窯弐", "赤椅子", "離婚町"]
+    stations: ["茅野村", "第二拠点", "卵森", "日窯弐", "赤椅須", "離婚町"]
   },
   {
     id: "mr-hikamani-r",
@@ -597,7 +653,7 @@ const ROUTES = [
     color: "#FF9900",
     auto: true,
     nether: false,
-    stations: ["日窯弐", "日窯弐新都心/新日窯弐", "離婚町", "南日窯弐", "日窯弐"]
+    stations: ["日窯弐", "日窯弐新都心/新日窯弐", "離婚町", "南立浪", "城南町", "南日窯弐", "日窯弐"]
   },
   {
     id: "rr-main-l",
@@ -645,6 +701,15 @@ const ROUTES = [
     stations: ["離婚町", "旧役所", "南立浪", "鐵町", "神谷村", "洞窟園前", "きのこ島", "美海ニュータウン"]
   },
   {
+    id: "snr-senpai-l",
+    name: "SNR 先輩線",
+    type: "普通",
+    color: "#E53947",
+    auto: false,
+    nether: false,
+    stations: ["ヘメロカリス", "闘技場前", "真嘘邸"]
+  },
+  {
     id: "21-chigura-l",
     name: "弐壱鐵道 千蔵線",
     type: "普通",
@@ -658,7 +723,7 @@ const ROUTES = [
     name: "弐壱鐵道 千蔵石灰支線",
     type: "普通",
     color: "#EDC2EB",
-    auto: true,
+    auto: false,
     nether: false,
     stations: ["千蔵", "製砂工場"]
   },
@@ -697,15 +762,6 @@ const ROUTES = [
     auto: true,
     nether: false,
     stations: ["第二拠点", "離婚町", "月夜見"]
-  },
-  {
-    id: "tatsumet-minahika-l",
-    name: "立浪メトロ 南日窯弐線",
-    type: "普通",
-    color: "#165BE5",
-    auto: false,
-    nether: false,
-    stations: ["離婚港", "南立浪", "城南町", "南日窯弐"]
   },
   {
     id: "kinoden-main-l",
@@ -774,10 +830,10 @@ const ROUTES = [
     id: "hwr-sl-l",
     name: "HWR 周遊りんかい線",
     type: "普通",
-    color: "#FFBFD2",
-    auto: false,
+    color: "#20D8BA",
+    auto: true,
     nether: false,
-    stations: ["ヘメロカリス特別区", "ヘメロカリス旧特別区", "グロリオサ島", "ブレティラ島", "プロテア湖"]
+    stations: ["ヘメロカリス", "桜村", "コリコリ町", "永浦町"]
   },
   {
     id: "hsr-main-l",
@@ -786,7 +842,7 @@ const ROUTES = [
     color: "#FFBFD2",
     auto: false,
     nether: false,
-    stations: ["ヘメロカリス特別区", "ヘメロカリス旧特別区", "グロリオサ島", "ブレティラ島", "プロテア湖"]
+    stations: ["ヘメロカリス特別区", "ヘメロカリス旧特別区", "グロリオサ島", "ブレティラ島", "プロテア湖", "ヘメロカリス特別区"]
   },
   {
     id: "hsr-kueru-l",
@@ -982,7 +1038,7 @@ const ROUTES = [
     name: "神谷鉄道線",
     type: "普通",
     color: "#79F23C",
-    auto: true,
+    auto: false,
     nether: false,
     stations: ["南日窯弐", "波田野", "神谷村", "下神谷村"]
   },
@@ -1121,7 +1177,7 @@ const ROUTES = [
     color: "#13FE00",
     auto: true,
     nether: true,
-    stations: ["晶洞", "大原邸", "大原城塞", "第二拠点", "大原別荘", "処女森", "稚女森", "露里森", "大原要塞"]
+    stations: ["大原邸", "大原城塞", "第二拠点", "大原別荘", "処女森", "稚女森", "露里森", "大原要塞"]
   },
   {
     id: "nr-o-r",
@@ -1130,7 +1186,7 @@ const ROUTES = [
     color: "#13FE00",
     auto: true,
     nether: true,
-    stations: ["晶洞", "大原邸", "処女森", "稚女森", "大原要塞"]
+    stations: ["大原邸", "処女森", "稚女森", "大原要塞"]
   },
   {
     id: "nr-o-le",
@@ -1139,7 +1195,7 @@ const ROUTES = [
     color: "#13FE00",
     auto: true,
     nether: true,
-    stations: ["晶洞", "大原邸", "処女森", "稚女森"]
+    stations: ["大原邸", "処女森", "稚女森"]
   },
   {
     id: "nr-s-l",
@@ -1167,6 +1223,24 @@ const ROUTES = [
     auto: true,
     nether: true,
     stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "新日窯弐", "日窯弐", "珍下森", "古代都市", "西口セメント製造所前", "御根森", "魂谷", "ウィザスケトラップ"]
+  },
+  {
+    id: "nr-y-r",
+    name: "NR 要塞線",
+    type: "快速",
+    color: "#A51310",
+    auto: true,
+    nether: true,
+    stations: ["NIKKE島", "穴生蛇町", "ネザー第一要塞", "日窯弐", "西口セメント製造所前", "魂谷", "ウィザスケトラップ"]
+  },
+  {
+    id: "nr-y-le",
+    name: "NR 要塞線",
+    type: "特急",
+    color: "#A51310",
+    auto: true,
+    nether: true,
+    stations: ["NIKKE島", "日窯弐", "西口セメント製造所前", "ウィザスケトラップ"]
   },
   {
     id: "new-miu",
@@ -1211,7 +1285,7 @@ const ROUTES = [
     color: "#FF9900",
     auto: true,
     nether: true,
-    stations: ["繞堂", "狭間", "南立浪"]
+    stations: ["大原邸", "繞堂", "狭間", "南立浪"]
   },
   {
     id: "wr-u-l",
@@ -1223,13 +1297,22 @@ const ROUTES = [
     stations: ["南立浪", "赤椅子", "薇薇森", "神谷村", "晶洞", "大原集落", "結穴森", "モレトゥム一時基地", "高寵森", "大原拠点"]
   },
   {
-    id: "wr-usub-l",
-    name: "WR 上層支線",
-    type: "普通",
+    id: "wr-u-r",
+    name: "WR 上層線",
+    type: "快速",
     color: "#0097A7",
     auto: true,
     nether: true,
-    stations: ["晶洞", "大原邸"]
+    stations: ["南立浪", "赤椅子", "神谷村"]
+  },
+  {
+    id: "wr-u-le",
+    name: "WR 上層線",
+    type: "特急",
+    color: "#0097A7",
+    auto: true,
+    nether: true,
+    stations: ["南立浪", "神谷村"]
   },
   {
     id: "nshr-main-l",
@@ -1254,7 +1337,7 @@ const ROUTES = [
     name: "NShR モレトゥム急行線",
     type: "普通",
     color: "#8CC6FF",
-    auto: true,
+    auto: false,
     nether: true,
     stations: ["ヘメロカリス", "オストカーカ一時基地", "モレトゥム一時基地"]
   },
@@ -1263,7 +1346,7 @@ const ROUTES = [
     name: "NShR しゃこてぃす線",
     type: "普通",
     color: "#8CC6FF",
-    auto: true,
+    auto: false,
     nether: true,
     stations: ["タトゥーイン", "ピグリン要塞", "マレヴォランス", "ラビンティ", "フェット活動拠点", "しゃこてぃす一時基地"]
   },
@@ -1272,9 +1355,27 @@ const ROUTES = [
     name: "NShR ホワイトリリー支線",
     type: "普通",
     color: "#8CC6FF",
-    auto: true,
+    auto: false,
     nether: true,
     stations: ["椦暗浮綿", "ホワイトリリー"]
+  },
+  {
+    id: "nshr-oshima-l",
+    name: "NShR 大島線",
+    type: "普通",
+    color: "#8CC6FF",
+    auto: false,
+    nether: true,
+    stations: ["駮岡市", "菌糸大島"]
+  },
+  {
+    id: "nshr-iroiro-l",
+    name: "NShR 駮岡いろいろ線",
+    type: "普通",
+    color: "#8CC6FF",
+    auto: false,
+    nether: true,
+    stations: ["駮岡市", "地点55", "アントニ・ガウディ", "リデル水中都市"]
   },
   {
     id: "knc-buchi-l",
@@ -1283,7 +1384,7 @@ const ROUTES = [
     color: "#1C89EF",
     auto: true,
     nether: true,
-    stations: ["日窯弐", "駮岡市"]
+    stations: ["日窯弐", "南きのこ島", "フロストヴェイル", "駮岡市"]
   },
   {
     id: "knc-buchi-r",
@@ -1349,7 +1450,7 @@ const ROUTES = [
     auto: false,
     nether: false,
     stations: ["神谷サーキット", "下神谷村"]
-  },
+  }
 ];
 
 /* ============================================
@@ -1361,6 +1462,13 @@ function atoBadge(a)   { return a ? '<span class="badge ato-badge on">ATO対応<
 function netherBadge() { return '<span class="badge nether-badge">ネザー</span>'; }
 function heavyMarker(n){ return HEAVY_STATIONS.has(n) ? '<span class="heavy-marker">重量</span>' : ''; }
 
+/* 2つの路線IDが直通ペアかどうかを判定 */
+function isThroughPair(idA, idB) {
+  return THROUGH_SERVICES.some(function(pair) {
+    return (pair[0] === idA && pair[1] === idB) || (pair[0] === idB && pair[1] === idA);
+  });
+}
+
 /* ============================================
    トグル
    ============================================ */
@@ -1370,26 +1478,6 @@ function toggleOption(event, id) {
   setTimeout(function() {
     cb.checked ? label.classList.add('checked') : label.classList.remove('checked');
   }, 10);
-}
-
-/* ============================================
-   途中駅展開ボタン
-   ============================================ */
-function toggleStops(segIdx) {
-  var btn   = document.getElementById('expand-btn-' + segIdx);
-  var stops = document.getElementById('intermediate-' + segIdx);
-  var isOpen = stops.classList.contains('open');
-  if (isOpen) {
-    stops.classList.remove('open');
-    btn.classList.remove('open');
-    btn.textContent = '▼'; // v
-    btn.title = '途中駅を表示';
-  } else {
-    stops.classList.add('open');
-    btn.classList.add('open');
-    btn.textContent = '▲'; // ^
-    btn.title = '途中駅を間じる';
-  }
 }
 
 /* ============================================
@@ -1428,6 +1516,8 @@ function buildGraph(routes) {
   return graph;
 }
 
+/* 乗り換え回数を最小化するダイクストラ。
+   直通ペア（THROUGH_SERVICES）に該当する路線変更はコスト0として扱う。 */
 function findRoute(graph, from, to) {
   if (from === to) return null;
   var queue = [{ station: from, currentRoute: null, transfers: 0, path: [] }];
@@ -1442,11 +1532,13 @@ function findRoute(graph, from, to) {
     if (!graph[cur.station]) continue;
     for (var i = 0; i < graph[cur.station].length; i++) {
       var edge = graph[cur.station][i];
-      var isTransfer = cur.currentRoute && cur.currentRoute.id !== edge.route.id;
+      var differentRoute = cur.currentRoute && cur.currentRoute.id !== edge.route.id;
+      var through = differentRoute && isThroughPair(cur.currentRoute.id, edge.route.id);
+      var isRealTransfer = differentRoute && !through;
       queue.push({
         station: edge.to,
         currentRoute: edge.route,
-        transfers: cur.transfers + (isTransfer ? 1 : 0),
+        transfers: cur.transfers + (isRealTransfer ? 1 : 0),
         path: cur.path.concat([{ from: cur.station, to: edge.to, route: edge.route }])
       });
     }
@@ -1468,6 +1560,16 @@ function pathToSegments(path) {
   }
   segs.push(seg);
   return segs;
+}
+
+/* segs[i-1] -> segs[i] の乗り継ぎが直通運転かどうかのフラグ配列を作る。
+   flags[0] は使わない（出発区間には「前」が無いため） */
+function computeThroughFlags(segs) {
+  var flags = [false];
+  for (var i = 1; i < segs.length; i++) {
+    flags.push(isThroughPair(segs[i-1].route.id, segs[i].route.id));
+  }
+  return flags;
 }
 
 /* ============================================
@@ -1547,28 +1649,32 @@ function searchRoute() {
   if (!path) { content.innerHTML = '<div class="no-route">経路が見つかりませんでした。</div>'; return; }
 
   var segs = pathToSegments(path);
-  var transfers = segs.length - 1;
+  var throughFlags = computeThroughFlags(segs);
   var usesNether = segs.some(function(s){ return s.route.nether; });
+
+  var realTransfers = 0, throughCount = 0;
+  for (var i = 1; i < segs.length; i++) {
+    if (throughFlags[i]) throughCount++; else realTransfers++;
+  }
 
   var html = '<div class="result-meta">'
     + '<div class="result-route-label">' + from + ' - ' + to + '</div>'
     + '<div class="result-badges">'
-    + '<span class="transfer-badge">乗り換え ' + transfers + ' 回</span>'
+    + '<span class="transfer-badge">乗り換え ' + realTransfers + ' 回</span>'
+    + (throughCount > 0 ? '<span class="direct-used-badge">直通 ' + throughCount + ' 区間</span>' : '')
     + (usesNether ? '<span class="nether-used-badge">ネザー経由</span>' : '')
     + '</div></div><div class="journey">';
 
   /* ---- 出発駅 ---- */
   var firstSeg = segs[0];
-  var firstMids = firstSeg.stations.slice(1, firstSeg.stations.length - 1); // 途中駅配列
+  var firstMids = firstSeg.stations.slice(1, firstSeg.stations.length - 1);
   var firstHasMids = firstMids.length > 0;
 
   html += '<div class="step">'
-    /* タイムライン列 */
     + '<div class="step-timeline">'
     +   '<div class="step-dot start"></div>'
     +   '<div class="step-connector-wrap">'
     +     '<div class="connector-line" style="background:' + firstSeg.route.color + '55"></div>'
-    /* 途中駅展開ボタン（途中駅が1以上あるときのみ） */
     + (firstHasMids
         ? '<button class="expand-btn" id="expand-btn-0" onclick="toggleStops(0)" title="途中駅を表示">▼</button>'
           + '<div class="intermediate-stops" id="intermediate-0">'
@@ -1578,10 +1684,7 @@ function searchRoute() {
                 +   '<div class="mid-connector-top" style="background:' + firstSeg.route.color + '55"></div>'
                 +   '<div class="mid-dot" style="border-color:' + firstSeg.route.color + '88;background:var(--bg)"></div>'
                 +   '<div class="mid-connector-bottom" style="background:' + firstSeg.route.color + '55"></div>'
-                + '</div>'
-                + '</div>'
-                /* 駅名は定位が難しいので複合レイアウトから除外、途中駅リストは stepの内側(body列)で次に描画 */
-                ;
+                + '</div></div>';
             }).join('')
           + '</div>'
         : ''
@@ -1589,7 +1692,6 @@ function searchRoute() {
     +     '<div class="connector-line" style="background:' + firstSeg.route.color + '55"></div>'
     +   '</div>'
     + '</div>'
-    /* ボディ列 */
     + '<div class="step-body">'
     +   '<div class="step-station">' + firstSeg.stations[0] + heavyMarker(firstSeg.stations[0]) + '</div>'
     +   '<div class="step-station-sub">出発</div>'
@@ -1601,7 +1703,6 @@ function searchRoute() {
     +     atoBadge(firstSeg.route.auto)
     +   '</div>';
 
-  /* 途中駅名一覧（body側に表示、タイムライン側のドットと連動） */
   if (firstHasMids) {
     html += '<div id="intermediate-body-0" style="display:none;margin-top:6px;padding-left:2px">'
       + firstMids.map(function(s){
@@ -1612,19 +1713,19 @@ function searchRoute() {
         }).join('')
       + '</div>';
   }
-  html += '</div></div>'; /* /step-body /step */
+  html += '</div></div>';
 
-  /* ---- 乗り換え・到着 ---- */
+  /* ---- 乗り換え・直通・到着 ---- */
   segs.forEach(function(seg, idx) {
     var isLast  = idx === segs.length - 1;
     var nextSeg = segs[idx + 1];
     var arrStation = seg.stations[seg.stations.length - 1];
-    var dotClass   = isLast ? 'end' : 'via';
+    var isThroughNext = !isLast && throughFlags[idx+1];
+    var dotClass = isLast ? 'end' : (isThroughNext ? 'through' : 'via');
 
-    /* 次セグメントの途中駅 */
     var nextMids    = (!isLast) ? nextSeg.stations.slice(1, nextSeg.stations.length - 1) : [];
     var nextHasMids = nextMids.length > 0;
-    var btnIdx      = idx + 1; /* 展開ボタンID (segインデックス+1) */
+    var btnIdx      = idx + 1;
 
     html += '<div class="step">'
       + '<div class="step-timeline">'
@@ -1641,8 +1742,7 @@ function searchRoute() {
                           +   '<div class="mid-connector-top" style="background:' + nextSeg.route.color + '55"></div>'
                           +   '<div class="mid-dot" style="border-color:' + nextSeg.route.color + '88;background:var(--bg)"></div>'
                           +   '<div class="mid-connector-bottom" style="background:' + nextSeg.route.color + '55"></div>'
-                          + '</div>'
-                          + '</div>';
+                          + '</div></div>';
                       }).join('')
                     + '</div>'
                   : ''
@@ -1654,7 +1754,9 @@ function searchRoute() {
       + '</div>'
       + '<div class="step-body">'
       +   '<div class="step-station">' + arrStation + heavyMarker(arrStation) + '</div>'
-      +   '<div class="step-station-sub">' + (isLast ? '到着' : '乗り換え') + '</div>';
+      +   '<div class="step-station-sub' + (isThroughNext ? ' through-text' : '') + '">'
+      +     (isLast ? '到着' : (isThroughNext ? 'そのまま乗車（乗り換え不要）' : '乗り換え'))
+      +   '</div>';
 
     if (!isLast) {
       html += '<div class="ride-block" style="border-left-color:' + nextSeg.route.color + '">'
@@ -1664,7 +1766,6 @@ function searchRoute() {
         +   '<div class="ride-stops">' + (nextSeg.stations.length-1) + '駅</div>'
         +   atoBadge(nextSeg.route.auto)
         + '</div>';
-      /* 途中駅名一覧 (body側) */
       if (nextHasMids) {
         html += '<div id="intermediate-body-' + btnIdx + '" style="display:none;margin-top:6px;padding-left:2px">'
           + nextMids.map(function(s){
@@ -1676,10 +1777,10 @@ function searchRoute() {
           + '</div>';
       }
     }
-    html += '</div></div>'; /* /step-body /step */
+    html += '</div></div>';
   });
 
-  html += '</div>'; /* /journey */
+  html += '</div>';
   content.innerHTML = html;
   resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -1687,8 +1788,8 @@ function searchRoute() {
 /* ---- toggleStops をタイムライン側とbody側を同時制御 ---- */
 function toggleStops(idx) {
   var btn   = document.getElementById('expand-btn-'   + idx);
-  var tl    = document.getElementById('intermediate-' + idx);        /* タイムライン側ドット */
-  var body  = document.getElementById('intermediate-body-' + idx);   /* body側駅名 */
+  var tl    = document.getElementById('intermediate-' + idx);
+  var body  = document.getElementById('intermediate-body-' + idx);
   var isOpen = tl.classList.contains('open');
   if (isOpen) {
     tl.classList.remove('open');
@@ -1700,7 +1801,7 @@ function toggleStops(idx) {
     tl.classList.add('open');
     btn.classList.add('open');
     btn.textContent = '▲';
-    btn.title = '途中駅を間じる';
+    btn.title = '途中駅を閉じる';
     if (body) body.style.display = 'block';
   }
 }
